@@ -1,0 +1,9 @@
+{
+  "name": "LTC",
+  "id_range": [ 1, 10 ],
+  "specs": [ "cmds.txt" ],
+  "variables": {
+    "NODE_PLD":13,
+    "LTC2983_PORT":10
+  }
+}

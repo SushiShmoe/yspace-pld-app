@@ -1,0 +1,12 @@
+../LTC2983/common/lpldgen/src/payloads.c:25:13:pld_error_str	3
+../LTC2983/common/lpldgen/src/payloads.c:43:20:address_matches	7
+../LTC2983/common/lpldgen/src/payloads.c:54:13:pld_find_spec_by_kind_in_module	5
+../LTC2983/common/lpldgen/src/payloads.c:76:13:pld_find_spec_by_kind	5
+../LTC2983/common/lpldgen/src/payloads.c:114:20:pld_recognize_internal	14
+../LTC2983/common/lpldgen/src/payloads.c:200:13:pld_parse_s	2
+../LTC2983/common/lpldgen/src/payloads.c:218:13:pld_parse_as_s	2
+../LTC2983/common/lpldgen/src/payloads.c:233:13:pld_recognize	1
+../LTC2983/common/lpldgen/src/payloads.c:245:20:pld_build_common	4
+../LTC2983/common/lpldgen/src/payloads.c:290:13:pld_build_s	2
+../LTC2983/common/lpldgen/src/payloads.c:304:13:pld_get_addr_by_id	5
+../LTC2983/common/lpldgen/src/payloads.c:333:13:pld_get_addr	5

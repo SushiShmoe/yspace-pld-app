@@ -1,0 +1,24 @@
+{
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "cmake.configureOnOpen": false,
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#836219",
+        "activityBar.background": "#836219",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#24bb8c",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#836219",
+        "statusBar.background": "#584211",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#836219",
+        "statusBarItem.remoteBackground": "#584211",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#584211",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#58421199",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#584211"
+}

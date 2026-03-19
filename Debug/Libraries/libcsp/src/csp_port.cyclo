@@ -1,0 +1,5 @@
+../Libraries/libcsp/src/csp_port.c:37:16:csp_port_get_socket	4
+../Libraries/libcsp/src/csp_port.c:56:5:csp_port_init	2
+../Libraries/libcsp/src/csp_port.c:67:6:csp_port_free_resources	1
+../Libraries/libcsp/src/csp_port.c:73:5:csp_listen	3
+../Libraries/libcsp/src/csp_port.c:88:5:csp_bind	8

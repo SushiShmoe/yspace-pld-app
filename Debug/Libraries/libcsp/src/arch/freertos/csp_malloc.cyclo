@@ -1,0 +1,3 @@
+../Libraries/libcsp/src/arch/freertos/csp_malloc.c:31:8:csp_malloc	1
+../Libraries/libcsp/src/arch/freertos/csp_malloc.c:35:8:csp_calloc	5
+../Libraries/libcsp/src/arch/freertos/csp_malloc.c:53:6:csp_free	1
