@@ -7,7 +7,7 @@
 #ifndef PLD_LTC_H
 #define PLD_LTC_H
 
-#include "payloads.h"
+#include <payloads.h>
 
 extern const struct pld_module Payloads_LTC;
 
@@ -177,6 +177,8 @@ struct LTC_READ_TEMP_REQ {
     uint16_t pld_id; //!< Payload ID
     /** Target channel ID */
     uint8_t channel_id;
+    /** Forces a new measurement if results are not ready */
+    uint8_t force_measurement;
 };
 
 /* Associated constant values */
@@ -187,7 +189,7 @@ struct LTC_READ_TEMP_REQ {
 #define LTC_READ_TEMP_REQ_C_SIZE (sizeof(struct LTC_READ_TEMP_REQ))
 
 /** Byte size of LTC_READ_TEMP_REQ in binary form */
-#define LTC_READ_TEMP_REQ_BIN_SIZE 2
+#define LTC_READ_TEMP_REQ_BIN_SIZE 3
 
 /** Payload LTC_READ_TEMP_REQ CSP destination address */
 #define LTC_READ_TEMP_REQ_DST_ADDR 13

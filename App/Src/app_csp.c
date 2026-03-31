@@ -141,7 +141,7 @@ void StartcspListenerTask(void *argument)
                 switch (csp_conn_dport(conn))
                 {
                 case 10:
-                	server_process_packet(conn, packet);
+                	ltc_service_handler(conn, packet);
                 	break;
                 default:
                     csp_service_handler(conn, packet);

@@ -50,6 +50,9 @@ struct GET_STATUS_RSP {
 
   +descr "Continuous measurement frequency"
   u32 frequency
+
+  +descr "Error code"
+  u8 error
 }
 
 
@@ -61,6 +64,9 @@ struct READ_TEMP_REQ {
 
   +descr "Target channel ID"
   u8 channel_id
+
+  +descr "Forces a new measurement if results are not ready"
+  u8 force_measurement
 }
 
 /// LTC2983 read temperature response

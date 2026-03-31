@@ -18,12 +18,13 @@
 
 #include <ltc/ltc_defines.h>
 
+#define MAX_ITERATIONS 100
 
 static int8_t server_set_mode(void* vreq, void* vrpl);
 static int8_t server_get_status(void* vreq, void* vrpl);
 static int8_t server_read_temp(void* vreq, void* vrpl);
 
-void server_process_packet(csp_conn_t* conn, csp_packet_t *packet) {
+void ltc_service_handler(csp_conn_t* conn, csp_packet_t *packet) {
   (void)conn;
   if(!packet) {
     return;
@@ -128,7 +129,7 @@ static int8_t server_get_status(void* vreq, void* vrpl) {
 
   rpl->frequency = (uint32_t)LTC2983_AppGetFrequency();
 
-  rpl->result_status = (uint8_t)LTC2983_AppIsResultReady();
+  rpl->result_status = (uint8_t)(LTC2983_AppIsResultReady() ? 0 : 1);
 
   rpl->error =(uint8_t)LTC2983_AppGetError();
 
@@ -137,13 +138,29 @@ static int8_t server_get_status(void* vreq, void* vrpl) {
 }
 
 static int8_t server_read_temp(void* vreq, void* vrpl) {
-  (void)vreq;
+  struct LTC_READ_TEMP_REQ* req = (struct LTC_READ_TEMP_REQ*)vreq;
   struct LTC_READ_TEMP_RSP* rpl = (struct LTC_READ_TEMP_RSP*)vrpl;
   rpl->pld_id = LTC_READ_TEMP_RSP_ID;
+
+  uint8_t force = req->force_measurement;
 
   LTC2983ConvResult_t tempResults[4];
 
   uint8_t status = LTC2983_AppGetResults(tempResults);
+
+  if (!status && force){
+	  LTC2983_AppSetMode(0);
+
+	 for (int i = 0; i < MAX_ITERATIONS; i++){
+		 if (LTC2983_AppIsResultReady()){
+			 status = LTC2983_AppGetResults(tempResults);
+
+			 break;
+		 }
+
+		 osDelay(50);
+	 }
+  }
 
   if (!status){
 	  rpl->result_ready = RESULT_NOT_READY;

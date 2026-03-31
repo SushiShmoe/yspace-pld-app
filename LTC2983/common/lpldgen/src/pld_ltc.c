@@ -239,7 +239,9 @@ pld_error_t LTC_READ_TEMP_REQ_parse_s(const uint8_t * bytes, const size_t length
     /* parsing */
     bytes++;
     
-    output->channel_id = (uint8_t)(*bytes);
+    output->channel_id = (uint8_t)(*bytes++);
+    
+    output->force_measurement = (uint8_t)(*bytes);
     
     return PLD_OK;
 }
@@ -715,6 +717,8 @@ pld_error_t LTC_READ_TEMP_REQ_build_s(const struct LTC_READ_TEMP_REQ * const dat
     
     *output++ = (uint8_t)(data->channel_id);
     
+    *output++ = (uint8_t)(data->force_measurement);
+    
     return PLD_OK;
 }
 
@@ -1176,6 +1180,8 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             pld_log_trace("export as data-only");
             CJSON_TRY(item0 = cJSON_CreateNumber(data->channel_id));
             cJSON_AddItemToObjectCS(output, "channel_id", item0);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
+            cJSON_AddItemToObjectCS(output, "force_measurement", item0);
             break;
         case EXPORT_JSON_ANNOTATED:
             pld_log_trace("export annotated");
@@ -1186,6 +1192,14 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
             cJSON_AddItemToObjectCS(item1, "type", item2);
             CJSON_TRY(item0 = cJSON_CreateNumber(data->channel_id));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "force_measurement", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("Forces a new measurement if results are not ready"));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
             cJSON_AddItemToObjectCS(item1, "value", item0);
             break;
         default:
@@ -1432,7 +1446,7 @@ static const struct pld_spec payload_specs[6] = {
             .dst = 13,
             .dport = 10
         },
-        .bin_size = 2,
+        .bin_size = 3,
         .c_size = sizeof(struct LTC_READ_TEMP_REQ),
         .growable = false,
         .tail_elem_bin_size = 0,

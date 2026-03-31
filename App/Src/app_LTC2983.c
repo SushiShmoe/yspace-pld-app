@@ -387,12 +387,12 @@ uint32_t LTC2983_AppGetFrequency(void){
 
 /* A public function to get the state of a measurement */
 uint8_t LTC2983_AppIsResultReady(){
-	return appHandle.resultStatus;
+	return appHandle.resultStatus ? 0 : 1;
 }
 
 /* A public function to get the newest results */
 uint8_t LTC2983_AppGetResults(LTC2983ConvResult_t * results){
-	if (LTC2983_AppIsResultReady()){
+	if (!LTC2983_AppIsResultReady()){
 		return 0;
 	}
 
