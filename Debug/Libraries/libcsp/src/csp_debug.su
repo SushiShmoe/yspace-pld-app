@@ -1,0 +1,5 @@
+../Libraries/libcsp/src/csp_debug.c:52:6:csp_debug_hook_set	16	static
+../Libraries/libcsp/src/csp_debug.c:57:6:do_csp_debug	28	static
+../Libraries/libcsp/src/csp_debug.c:120:6:csp_debug_set_level	16	static
+../Libraries/libcsp/src/csp_debug.c:127:5:csp_debug_get_level	16	static
+../Libraries/libcsp/src/csp_debug.c:135:6:csp_debug_toggle_level	16	static

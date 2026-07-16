@@ -1,0 +1,272 @@
+/*
+ * app_LTC2983.c
+ *
+ *  Created on: Feb 17, 2026
+ *      Author: vrnak
+ */
+
+
+#include <app_LTC2983.h>
+#include "main.h"
+#include "LTC2983.h"
+#include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "cmsis_os2.h"
+#include "queue.h"
+#include "ltc/ltc_defines.h"
+#include "LTC2983_config.h"
+
+#define MEASUREMENT_FREQUENCY_DEFAULT 1000
+
+#define MEASUREMENT_START_FLAG 	0x01
+#define MEASUREMENT_HW_FLAG 	0x02
+#define MEASUREMENT_DONE_FLAG 	0x04
+#define CONFIG_DONE_FLAG 		0x08
+
+
+extern osMessageQueueId_t rsltsQueueHandle;
+
+extern osThreadId_t LTCTaskHandle;
+
+extern LTC2983Handle_t ltc1Handle;
+
+extern LTC2983HandleRegistry_t handleRegistry;
+
+//TODO add callback taskstate
+
+LTC_AppState_t appState = {MEASUREMENT_SINGLE, RESULT_NOT_READY, 4};
+
+void LTC2983_SetStateCommand(LTC2983_AppTaskState command){
+	appState.command = command;
+}
+
+LTC_AppState_t LTC2983_GetState(void){
+	return appState;
+}
+
+void LTC2983_SetFrequency(uint32_t frequency){
+	appState.continuous_frequency = frequency;
+}
+
+uint32_t LTC2983_GetFrequency(void){
+	return appState.continuous_frequency;
+}
+
+static void _LTC2983_WriteResultsShared(LTC2983Handle_t * const handle){
+	xQueueOverwrite((QueueHandle_t)rsltsQueueHandle, handle->Results->Results);
+}
+
+static void _LTC2983_ConfigCallback(){
+	osThreadFlagsSet(LTCTaskHandle, CONFIG_DONE_FLAG);
+}
+
+static void _LTC2983_StartUpCycle(){
+	LTC2983_RegisterTaskDoneCallback(&ltc1Handle, _LTC2983_ConfigCallback);
+
+	LTC2983_StartUp(&ltc1Handle);
+
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE) {
+		osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 100);
+
+		if (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE) {
+			LTC2983_StartUp(&ltc1Handle);
+		}
+	}
+
+	LTC2983_UnRegisterTaskDoneCallback(&ltc1Handle);
+
+	osThreadFlagsClear(CONFIG_DONE_FLAG);
+}
+
+
+static void _LTC2983_MeasurementStartCallback(){
+	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_HW_FLAG);
+}
+static void _LTC2983_MeasurementDoneCallback(){
+	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_DONE_FLAG);
+}
+/* Generic function to make a measurement */
+static void _LTC2983_MeasurementSequence(LTC2983Channel_t channel){
+	LTC2983_RegisterTaskDoneCallback(&ltc1Handle, _LTC2983_MeasurementStartCallback);
+
+	LTC2983_Convert(&ltc1Handle, channel);
+
+	/*while (ltc1Handle.State->Status == LTC2983_DRIVER_STATUS_BUSY){
+		osDelay(10);
+	}*/
+
+	osThreadFlagsWait(MEASUREMENT_HW_FLAG, osFlagsWaitAny, osWaitForever);
+
+
+	LTC2983_RegisterTaskDoneCallback(&ltc1Handle, _LTC2983_MeasurementDoneCallback);
+
+	LTC2983_ReadTemperatureResults(&ltc1Handle, channel);
+
+	osThreadFlagsWait(MEASUREMENT_DONE_FLAG, osFlagsWaitAny, osWaitForever);
+
+	if (ltc1Handle.State->Status == LTC2983_DRIVER_STATUS_ERROR){ // TODO add timeout protection
+		// TODO
+	}
+
+	LTC2983_UnRegisterTaskDoneCallback(&ltc1Handle);
+
+	_LTC2983_WriteResultsShared(&ltc1Handle);
+}
+
+/* Inner function to setup configs. */
+static void _LTC2983_SetupSequence(){ // TODO handle errors
+	_LTC2983_StartUpCycle();
+
+	LTC2983_RegisterTaskDoneCallback(&ltc1Handle, _LTC2983_ConfigCallback);
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_WriteGlobalConfigReg(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+	    osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_ReadGlobalConfigReg(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+	    osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_WriteMuxConfigDelay(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+		osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_WriteMeasMultiChannelsMask(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+		osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_WriteChannelsAssignmentData(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_COMPLETE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+		osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	//vTaskDelay(pdMS_TO_TICKS(100));
+
+	LTC2983_ReadChannelsAssignmentData(&ltc1Handle);
+	while (ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_NONE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_COMPLETE && ltc1Handle.State->Status != LTC2983_DRIVER_STATUS_ERROR){
+		osThreadFlagsWait(CONFIG_DONE_FLAG, osFlagsWaitAny, 1000);
+	}
+
+	LTC2983_UnRegisterTaskDoneCallback(&ltc1Handle);
+	osThreadFlagsClear(MEASUREMENT_START_FLAG | MEASUREMENT_HW_FLAG | MEASUREMENT_DONE_FLAG | CONFIG_DONE_FLAG);
+}
+
+
+
+/* Main setup function to fire up and set LTC2983 */
+static void _LTC2983_Manager();
+void LTC2983_Setup(){
+	LTC2983_Init(&ltc1Handle);
+
+	LTC2983_RegisterLTC2983HandleRegistry(&handleRegistry);
+
+	HAL_SPI_StateTypeDef state = ltc1Handle.IfaceConfig->hspi->State;
+	HAL_DMA_StateTypeDef stateD = ltc1Handle.IfaceConfig->hspi->hdmatx->State;
+
+	_LTC2983_SetupSequence();
+
+	_LTC2983_Manager();
+
+	osThreadTerminate(NULL);
+}
+
+/* Function to handle single measurements. */
+void LTC2983_StartSingleMeasurement(LTC2983Channel_t channel){
+    taskENTER_CRITICAL();
+
+	appState.result = RESULT_NOT_READY;
+
+	appState.channel = channel;
+
+	appState.command = MEASUREMENT_SINGLE;
+
+	taskEXIT_CRITICAL();
+
+	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_START_FLAG);
+}
+
+/* A function to start continuous measurement. */
+void LTC2983_StartContinuousMeasurement(LTC2983Channel_t channel){
+    taskENTER_CRITICAL();
+
+	appState.result = RESULT_NOT_READY;
+
+	appState.channel = channel;
+
+	appState.command = MEASUREMENT_CONTINUOUS;
+
+	taskEXIT_CRITICAL();
+
+	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_START_FLAG);
+}
+
+/* A function to stop continuous measurement. */
+void LTC2983_StopContinuousMeasurement(){
+    taskENTER_CRITICAL();
+	appState.command = MEASUREMENT_STOP;
+	taskEXIT_CRITICAL();
+}
+
+/* Main function to handle the LTC2983 thread. */
+static void _LTC2983_Manager(){
+	while (1){
+		switch (appState.command){
+			case MEASUREMENT_STOP: {
+				LTC2983_Sleep(&ltc1Handle);
+
+				appState.result = RESULT_NOT_READY;
+				osThreadFlagsClear(MEASUREMENT_START_FLAG | MEASUREMENT_HW_FLAG | MEASUREMENT_DONE_FLAG | CONFIG_DONE_FLAG);
+				osThreadFlagsWait(MEASUREMENT_START_FLAG, osFlagsWaitAny, osWaitForever);
+
+				_LTC2983_SetupSequence();
+			} break;
+			case MEASUREMENT_CONTINUOUS:{
+				_LTC2983_MeasurementSequence(appState.channel);
+
+				appState.result = RESULT_READY;
+
+				uint32_t frequency;
+				if (appState.continuous_frequency != -1){
+					frequency = appState.continuous_frequency;
+				} else {
+					frequency = MEASUREMENT_FREQUENCY_DEFAULT;
+				}
+				osThreadFlagsWait(MEASUREMENT_START_FLAG, osFlagsWaitAny, frequency); // TODO measurement_freqeuency var
+			} break;
+			case MEASUREMENT_SINGLE:{
+				appState.result = RESULT_NOT_READY;
+				_LTC2983_MeasurementSequence(appState.channel);
+
+				appState.command = MEASUREMENT_STOP;
+				appState.result = RESULT_READY;
+			} break;
+		}
+	}
+}
+
+
+
+osThreadId_t LTCTaskHandle;
+const osThreadAttr_t LTCTask_attributes = {
+    .name = "LTC2983Task",
+    .priority = (osPriority_t)osPriorityNormal,
+    .stack_size = 1024 * 4
+};
+
+void app_init_LTC2983(){
+    LTCTaskHandle = osThreadNew(LTC2983_Setup, NULL, &LTCTask_attributes);
+}

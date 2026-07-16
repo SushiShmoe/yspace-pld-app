@@ -1,0 +1,49 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // openocd -f interface/stlink.cfg -f target/stm32u5x.cfg -c "adapter serial 003D00243433510337363934" -c "bindto 0.0.0.0" -c "gdb_port 3333"
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (Local)",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/Azalka.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": ["interface/stlink.cfg", "target/stm32u5x.cfg"],            
+            "openOCDPreConfigLaunchCommands": ["adapter serial 004E00363433510337363934"],
+            "searchDir": [],
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "rtos": "FreeRTOS",
+            "preLaunchTask": "build firmware",
+            "armToolchainPath": "/home/filip/Apps/arm-gnu-toolchain/bin/",
+            "overrideGDBServerStartedRegex": "Info : Listening on port [0-9]+ for gdb connections",
+            "postLaunchCommands": [
+                "set pagination off"
+            ]
+        },
+        {
+            "name": "Upload & Run (Local)",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/Azalka.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": ["interface/stlink.cfg", "target/stm32u5x.cfg"],
+            "openOCDPreConfigLaunchCommands": ["adapter serial 004E00363433510337363934"],
+            "searchDir": [],
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "preLaunchTask": "build firmware",
+            "armToolchainPath": "/home/filip/Apps/arm-gnu-toolchain/bin/",
+            "overrideGDBServerStartedRegex": "Info : Listening on port [0-9]+ for gdb connections",
+            "postLaunchCommands": [
+                "continue",
+                "quit"
+            ]
+        }
+    ]
+}

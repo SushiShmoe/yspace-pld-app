@@ -1,0 +1,9 @@
+../Libraries/libcsp/src/rtable/csp_rtable.c:187:12:csp_rtable_parse	80	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:258:5:csp_rtable_load	16	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:262:5:csp_rtable_check	16	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:266:5:csp_rtable_set	32	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:291:13:csp_rtable_save_route	80	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:325:5:csp_rtable_save	32	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:333:6:csp_rtable_clear	8	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:342:13:csp_rtable_print_route	32	static
+../Libraries/libcsp/src/rtable/csp_rtable.c:352:6:csp_rtable_print	8	static

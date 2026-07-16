@@ -1,0 +1,91 @@
+/// Set measurement mode / ask for status
++to NODE_PLD:LTC2983_PORT
+struct SET_MODE_REQ {
+  +named CMD_ID
+  u8 =0x00
+
+  +descr "Set flags for reading temps"
+  u8 mode
+
+  +descr "A flag to know if you are sending a frequency too"
+  u8 set_frequency
+
+  +descr "Continuous measurement frequency"
+  u32 frequency
+}
+
+/// jeden command na set, jeden na read, flagy -s -c -t <cislo> a spol a podle bit masky se bude zjistovat
+
+/// Set mode response
++from NODE_PLD:LTC2983_PORT
+struct SET_MODE_RSP {
+  +named CMD_ID
+  u8 =0x00
+
+  +descr "Whether the setting was valid or not"
+  u8 status
+
+  +descr "In case of an error an error message"
+  char error[25]
+}
+
+/// Get status, mode and frequency request
++to NODE_PLD:LTC2983_PORT
+struct GET_STATUS_REQ {
+  +named CMD_ID
+  u8 =0x01
+}
+
+/// Get mode and frequency response
++from NODE_PLD:LTC2983_PORT
+struct GET_STATUS_RSP {
+  +named CMD_ID
+  u8 =0x01
+
+  +descr "Active mode"
+  u8 mode
+
+  +descr "Result status"
+  u8 result_status
+
+  +descr "Continuous measurement frequency"
+  u32 frequency
+
+  +descr "Error code"
+  u8 error
+}
+
+
+/// LTC2983 read temperature request
++to NODE_PLD:LTC2983_PORT
+struct READ_TEMP_REQ {
+  +named CMD_ID
+  u8 =0x02
+
+  +descr "Target channel ID"
+  u8 channel_id
+
+  +descr "Forces a new measurement if results are not ready"
+  u8 force_measurement
+}
+
+/// LTC2983 read temperature response
++from NODE_PLD:LTC2983_PORT
+struct READ_TEMP_RSP {
+  +named CMD_ID
+  u8 =0x02
+
+  u8 result_ready
+  struct TempRslt[4]{
+    +descr "Channel ID"
+    u8 channel
+
+    +descr "Status of the reading"
+    u8 status
+
+    +endian big
+    +descr "Temperature"
+    float temperature
+  }
+}
+

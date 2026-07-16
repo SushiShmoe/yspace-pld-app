@@ -1,0 +1,24 @@
+# Cross-compilation file for ARM Cortex-M33 (STM32U5xx)
+# Usage: meson setup build --cross-file meson/cross/arm-none-eabi-gcc.txt
+
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+ar = 'arm-none-eabi-ar'
+strip = 'arm-none-eabi-strip'
+objcopy = 'arm-none-eabi-objcopy'
+objdump = 'arm-none-eabi-objdump'
+size = 'arm-none-eabi-size'
+gdb = 'arm-none-eabi-gdb'
+ld = 'arm-none-eabi-ld'
+as = 'arm-none-eabi-as'
+
+[properties]
+# Skip standard library checks for bare-metal
+needs_exe_wrapper = true
+
+[host_machine]
+system = 'none'
+cpu_family = 'arm'
+cpu = 'cortex-m33'
+endian = 'little'

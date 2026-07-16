@@ -1,0 +1,2 @@
+../Libraries/libcsp/src/csp_bridge.c:36:8:csp_bridge	80	static
+../Libraries/libcsp/src/csp_bridge.c:79:5:csp_bridge_start	40	static

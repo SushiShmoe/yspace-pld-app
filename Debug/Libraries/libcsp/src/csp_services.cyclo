@@ -1,0 +1,16 @@
+/media/maty/MyDisk/work/yspace/projects/csp/app_LTC2983/Libraries/libcsp/include/csp/csp.h:182:19:csp_transaction	1
+../Libraries/libcsp/src/csp_services.c:29:5:csp_ping	9
+../Libraries/libcsp/src/csp_services.c:84:6:csp_ping_noreply	4
+../Libraries/libcsp/src/csp_services.c:111:6:csp_reboot	1
+../Libraries/libcsp/src/csp_services.c:116:6:csp_shutdown	1
+../Libraries/libcsp/src/csp_services.c:121:6:csp_ps_with_callback	6
+../Libraries/libcsp/src/csp_services.c:174:13:callback	2
+../Libraries/libcsp/src/csp_services.c:181:6:csp_ps	1
+../Libraries/libcsp/src/csp_services.c:186:6:csp_ps_to_file	1
+../Libraries/libcsp/src/csp_services.c:191:5:csp_get_memfree	2
+../Libraries/libcsp/src/csp_services.c:203:6:csp_memfree	2
+../Libraries/libcsp/src/csp_services.c:215:5:csp_get_buf_free	2
+../Libraries/libcsp/src/csp_services.c:227:6:csp_buf_free	2
+../Libraries/libcsp/src/csp_services.c:239:5:csp_get_uptime	2
+../Libraries/libcsp/src/csp_services.c:250:6:csp_uptime	2
+../Libraries/libcsp/src/csp_services.c:262:5:csp_cmp	2

@@ -1,0 +1,46 @@
+#ifndef W_INCLUDE_CSP_CSP_AUTOCONFIG_H_WAF
+#define W_INCLUDE_CSP_CSP_AUTOCONFIG_H_WAF
+
+#define GIT_REV "v1.6+vzlu"
+
+#cmakedefine01 CSP_FREERTOS
+#cmakedefine01 CSP_POSIX
+#cmakedefine01 CSP_WINDOWS
+#cmakedefine01 CSP_MACOSX
+
+#cmakedefine01 CSP_DEBUG
+#cmakedefine01 CSP_DEBUG_TIMESTAMP
+#cmakedefine01 CSP_USE_RDP
+#cmakedefine01 CSP_USE_RDP_FAST_CLOSE
+#cmakedefine01 CSP_USE_CRC32
+#cmakedefine01 CSP_USE_HMAC
+#cmakedefine01 CSP_USE_XTEA
+#cmakedefine01 CSP_USE_PROMISC
+#cmakedefine01 CSP_USE_QOS
+#cmakedefine01 CSP_USE_DEDUP
+#cmakedefine01 CSP_USE_EXTERNAL_DEBUG
+#cmakedefine01 CSP_USE_CUSTOM_PRINTF
+#cmakedefine01 CSP_HAVE_LIBSOCKETCAN
+#cmakedefine01 CSP_I2C_FRAME_PACKED
+#cmakedefine01 CSP_HAVE_SSCANF
+#cmakedefine01 CSP_HAVE_RAND
+
+#cmakedefine01 CSP_LOG_LEVEL_DEBUG
+#cmakedefine01 CSP_LOG_LEVEL_INFO
+#cmakedefine01 CSP_LOG_LEVEL_WARN
+#cmakedefine01 CSP_LOG_LEVEL_ERROR
+
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    #define CSP_BIG_ENDIAN 1
+#else
+    #define CSP_LITTLE_ENDIAN 1
+#endif
+
+#define CSP_HAVE_STDBOOL_H 1
+#define LIBCSP_VERSION "1.6"
+
+/* Not used by CSP - only for external feature checking */
+#cmakedefine01 CSP_USE_CIDR_RTABLE
+#define LIBCSP_VZLU 1
+
+#endif /* W_INCLUDE_CSP_CSP_AUTOCONFIG_H_WAF */
