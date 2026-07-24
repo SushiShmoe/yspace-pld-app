@@ -52,16 +52,17 @@ HAL_StatusTypeDef RTC_SetTimeAndDate(DateTime_t *datetime)
         //Error_Handler();
     	return retval;
     }
+
+    return retval;
 }
 
 HAL_StatusTypeDef RTC_GetTimeAndDate(DateTime_t *datetime)
 {
-    RTC_TimeTypeDef sTime;
-    RTC_DateTypeDef sDate;
-
     HAL_StatusTypeDef retval = HAL_OK;
 
-    if (retval = HAL_RTC_GetTime(&hrtc, &datetime->sTime, RTC_FORMAT_BIN)) return retval;
+    if ((retval = HAL_RTC_GetTime(&hrtc, &datetime->sTime, RTC_FORMAT_BIN))) {
+        return retval;
+    }
     retval = HAL_RTC_GetDate(&hrtc, &datetime->sDate, RTC_FORMAT_BIN);  // Must be called after GetTime
 
     return retval;
