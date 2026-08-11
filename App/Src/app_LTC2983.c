@@ -173,7 +173,9 @@ static void _LTC2983_SetupSequence(void) {
     appHandle.mode = STARTUP_MODE;
 
     _LTC2983_StartUpCycle();
-    if (appHandle.appTaskState == LTC2983_APPSTATE_ERROR) return;
+    if (appHandle.appTaskState == LTC2983_APPSTATE_ERROR) {
+        return;
+    }
 
     RUN_CONFIG_SETUP(LTC2983_APPSTATE_WRITE_GLOBAL_CONFIG, LTC2983_WriteGlobalConfigReg);
     RUN_CONFIG_SETUP(LTC2983_APPSTATE_READ_GLOBAL_CONFIG, LTC2983_ReadGlobalConfigReg);
@@ -312,6 +314,7 @@ uint8_t LTC2983_AppGetResults(LTC2983ConvResult_t *results) {
     }
     appHandle.resultStatus = RESULT_NOT_READY;
     osMutexRelease(resultsMutex);
+
     return 1;
 }
 

@@ -52,10 +52,10 @@ void LTC2983_AppSetFrequency(uint32_t frequency);
 /* A public function to get frequency of continuous measurement */
 uint32_t LTC2983_AppGetFrequency(void);
 
-/* A public function to get the state of a measurement (1 = Ready, 0 = Not Ready) */
+/* A public function to get the state of a measurement */
 uint8_t LTC2983_AppIsResultReady(void);
 
-/* A public function to get the newest results (Returns 1 on success, 0 if not ready) */
+/* A public function to get the newest results */
 uint8_t LTC2983_AppGetResults(LTC2983ConvResult_t *results);
 
 #endif /* INC_LTC2983_CONFIG_H_ */

@@ -96,7 +96,7 @@ void StartcspTask(void *argument)
     cspRouterTaskHandle = osThreadNew(StartcspRouterTask, NULL, &cspRouterTask_attributes);
     cspI2CHandle = osThreadNew(StartcspI2C, NULL, &cspI2C_attributes);
 
-    osThreadExit();
+    vTaskDelete(NULL);
 }
 
 void StartcspListenerTask(void *argument)
@@ -125,22 +125,18 @@ void StartcspListenerTask(void *argument)
 
 void StartcspRouterTask(void *argument)
 {
-    for (;;)
-    {
+    for (;;) {
         csp_route_work(10);
     }
 }
 
 void StartcspI2C(void *argument)
 {
-    while(1) {
-        osThreadFlagsWait(I2C_RX_COMPLETE_FLAG, osFlagsWaitAny, osWaitForever);
-
-        if (rx_count > 0) {
-            memset(rx_buffer, 0, rx_count);
-            csp_i2c_rx(iface_I2C, rx_buffer, rx_count, NULL);
-            rx_count = 0;
-        }
+    for (;;) {
+        csp_i2c_rx(iface_I2C, rx_buffer, rx_count, NULL);
+        memset(rx_buffer, 0, rx_count);
+        rx_count = 0;
+        vTaskSuspend(cspI2CHandle);
     }
 }
 
@@ -153,10 +149,12 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
     }
 }
 
+// Callback when a complete listen cycle ends (including STOP detection)
 void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     if (hi2c->Instance == I2C1) {
-        osThreadFlagsSet(cspI2CHandle, I2C_RX_COMPLETE_FLAG);
+        xTaskResumeFromISR(cspI2CHandle);
+
         HAL_I2C_EnableListen_IT(hi2c);
     }
 }
@@ -167,14 +165,22 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     if (hi2c->Instance == I2C1) {
         if (hi2c->ErrorCode & HAL_I2C_ERROR_AF) {
             rx_count = sizeof(rx_buffer) - hi2c->XferSize;
-            osThreadFlagsSet(cspI2CHandle, I2C_RX_COMPLETE_FLAG);
+            xTaskResumeFromISR(cspI2CHandle);
         }
-        HAL_I2C_EnableListen_IT(hi2c);
+        // Handle other I2C errors as needed
     }
+    // Re-enable listening after handling the error
+    HAL_I2C_EnableListen_IT(hi2c);
 }
 
 int csp_reboot_callback(void)
 {
     HAL_NVIC_SystemReset();
     return 0;
+}
+
+void vTaskList(char * pcWriteBuffer) {
+    if (pcWriteBuffer != NULL) {
+        pcWriteBuffer[0] = '\0';
+    }
 }

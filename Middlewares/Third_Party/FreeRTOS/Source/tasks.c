@@ -1841,7 +1841,7 @@ static void prvAddNewTaskToReadyList( TCB_t * pxNewTCB )
         TCB_t * const pxTCB = xTaskToResume;
 
         /* It does not make sense to resume the calling task. */
-        //TODO configASSERT( xTaskToResume );
+        configASSERT( xTaskToResume );
 
         /* The parameter cannot be NULL as it is impossible to resume the
          * currently executing task. */
@@ -1896,7 +1896,7 @@ static void prvAddNewTaskToReadyList( TCB_t * pxNewTCB )
         TCB_t * const pxTCB = xTaskToResume;
         UBaseType_t uxSavedInterruptStatus;
 
-        //TODO configASSERT( xTaskToResume );
+        configASSERT( xTaskToResume );
 
         /* RTOS ports that support interrupt nesting have the concept of a
          * maximum  system call (or maximum API call) interrupt priority.
