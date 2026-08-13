@@ -88,9 +88,10 @@ void StartcspTask(void *argument)
     csp_rtable_set(10, 5, iface_I2C, CSP_NO_VIA_ADDRESS);
     csp_rtable_set(8, 5, iface_I2C, CSP_NO_VIA_ADDRESS);
     csp_rtable_set(2, 5, iface_I2C, CSP_NO_VIA_ADDRESS);
-    csp_rtable_set(24, 5, iface_I2C, 9);
+    csp_rtable_set(15, 5, iface_I2C, CSP_NO_VIA_ADDRESS);
+    csp_rtable_set(24, 5, iface_I2C, 15);
 	csp_rtable_set(11, 5, iface_I2C, 9);
-	csp_rtable_set(25, 5, iface_I2C, 9);
+	csp_rtable_set(26, 5, iface_I2C, 15);
 
     cspListenerTaskHandle = osThreadNew(StartcspListenerTask, NULL, &cspListenerTask_attributes);
     cspRouterTaskHandle = osThreadNew(StartcspRouterTask, NULL, &cspRouterTask_attributes);
