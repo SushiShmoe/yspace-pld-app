@@ -1,9 +1,12 @@
 #ifndef LTC_DEFINES_H
 #define LTC_DEFINES_H
 
-#define SET_MODE_RSP_ERROR_LEN 25
+#define SET_MODE_RSP_ERROR_LEN 		(25)
 
-#define TEMP_RSLT_COUNT 4
+#define TEMP_RSLT_COUNT 			(20)
+#define VALID_CHANNEL_LIST_COUNT 	(5)
+
+#define DEFAULT_RSENSE_VALUE		(5050.0)
 
 typedef enum {
 	SINGLE_MODE,
@@ -22,8 +25,8 @@ typedef enum {
 	STATUS_BAD
 } SET_MODE_RPL_STATUS;
 
-static const int validChannelList[4] = {
-  4, 6, 8, 10
+static const int validChannelList[5] = {
+  2, 4, 6, 8, 10
 };
 
 typedef enum {

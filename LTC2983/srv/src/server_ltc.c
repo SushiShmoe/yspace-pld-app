@@ -156,12 +156,12 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 
   uint8_t force = req->force_measurement;
 
-  LTC2983ConvResult_t tempResults[4];
+  LTC2983ConvResult_t tempResults[TEMP_RSLT_COUNT];
 
   uint8_t status = LTC2983_AppGetResults(tempResults);
 
   if (!status && force){
-	  LTC2983_AppSetMode(0);
+	  LTC2983_AppSetMode(0, req->channel_id);
 
 	 for (int i = 0; i < MAX_ITERATIONS; i++){
 		 if (LTC2983_AppIsResultReady()){
@@ -188,7 +188,7 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 	  return(SERVICE_ERR_NONE);
   }
 
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < TEMP_RSLT_COUNT; i++){
 	rpl->TempRslt[i].channel = tempResults[i].Channel;
 	rpl->TempRslt[i].temperature = tempResults[i].Temperature;
 	rpl->TempRslt[i].status = tempResults[i].Status;
