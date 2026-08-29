@@ -253,13 +253,13 @@ void LTC2983_StartSingleMeasurement(LTC2983Channel_t channel);
 void LTC2983_StartContinuousMeasurement(LTC2983Channel_t channel);
 void LTC2983_StopMeasurement();
 
-void LTC2983_AppSetMode(LTC2983_AppMeasurementMode mode){
+void LTC2983_AppSetMode(LTC2983_AppMeasurementMode mode, int channel){
 	switch (mode){
 	  case SINGLE_MODE:{
-		  LTC2983_StartSingleMeasurement(0);
+		  LTC2983_StartSingleMeasurement(channel);
 	  } break;
 	  case CONTINUOUS_MODE:{
-		  LTC2983_StartContinuousMeasurement(0);
+		  LTC2983_StartContinuousMeasurement(channel);
 	  } break;
 	  case STOP_MODE:{
 		  if (LTC2983_AppGetMode() != STOP_MODE){

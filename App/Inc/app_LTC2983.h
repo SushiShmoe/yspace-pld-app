@@ -35,7 +35,7 @@ typedef enum {
 void app_init_LTC2983(void);
 
 /* A public function to set a measurement mode */
-void LTC2983_AppSetMode(LTC2983_AppMeasurementMode command);
+void LTC2983_AppSetMode(LTC2983_AppMeasurementMode mode, int channel);
 
 /* A public function to get a measurement mode */
 LTC2983_AppMeasurementMode LTC2983_AppGetMode(void);
