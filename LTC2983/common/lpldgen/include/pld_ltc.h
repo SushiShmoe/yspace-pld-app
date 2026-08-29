@@ -20,7 +20,9 @@ enum LTC_PayloadType {
     LTC_GET_STATUS_REQ_ID = 3,
     LTC_GET_STATUS_RSP_ID = 4,
     LTC_READ_TEMP_REQ_ID = 5,
-    LTC_READ_TEMP_RSP_ID = 6
+    LTC_READ_TEMP_RSP_ID = 6,
+    LTC_SET_RSENSE_REQ_ID = 7,
+    LTC_SET_RSENSE_RSP_ID = 8
 };
 
 /** @defgroup spec_pointers Payload specifications
@@ -36,6 +38,8 @@ extern const struct pld_spec * const PldSpec_LTC_GET_STATUS_REQ;
 extern const struct pld_spec * const PldSpec_LTC_GET_STATUS_RSP;
 extern const struct pld_spec * const PldSpec_LTC_READ_TEMP_REQ;
 extern const struct pld_spec * const PldSpec_LTC_READ_TEMP_RSP;
+extern const struct pld_spec * const PldSpec_LTC_SET_RSENSE_REQ;
+extern const struct pld_spec * const PldSpec_LTC_SET_RSENSE_RSP;
 
 /** @}*/
 
@@ -212,7 +216,9 @@ struct LTC_READ_TEMP_RSP {
         uint8_t status;
         /** Temperature */
         float temperature;
-    } TempRslt[4];
+        /** Raw Voltage */
+        float raw;
+    } TempRslt[20];
 };
 
 /* Associated constant values */
@@ -223,13 +229,67 @@ struct LTC_READ_TEMP_RSP {
 #define LTC_READ_TEMP_RSP_C_SIZE (sizeof(struct LTC_READ_TEMP_RSP))
 
 /** Byte size of LTC_READ_TEMP_RSP in binary form */
-#define LTC_READ_TEMP_RSP_BIN_SIZE 26
+#define LTC_READ_TEMP_RSP_BIN_SIZE 202
 
 /** Payload LTC_READ_TEMP_RSP CSP source address */
 #define LTC_READ_TEMP_RSP_SRC_ADDR 13
 
 /** Payload LTC_READ_TEMP_RSP CSP source port */
 #define LTC_READ_TEMP_RSP_SRC_PORT 10
+
+/**
+ * Payload "SET_RSENSE_REQ"
+ *
+ * Set rsense value
+ */
+struct LTC_SET_RSENSE_REQ {
+    uint16_t pld_id; //!< Payload ID
+    /** Rsense value to set */
+    float val;
+};
+
+/* Associated constant values */
+
+#define LTC_SET_RSENSE_REQ_CMD_ID 3
+
+/** sizeof(SET_RSENSE_REQ) */
+#define LTC_SET_RSENSE_REQ_C_SIZE (sizeof(struct LTC_SET_RSENSE_REQ))
+
+/** Byte size of LTC_SET_RSENSE_REQ in binary form */
+#define LTC_SET_RSENSE_REQ_BIN_SIZE 5
+
+/** Payload LTC_SET_RSENSE_REQ CSP destination address */
+#define LTC_SET_RSENSE_REQ_DST_ADDR 13
+
+/** Payload LTC_SET_RSENSE_REQ CSP destination port */
+#define LTC_SET_RSENSE_REQ_DST_PORT 10
+
+/**
+ * Payload "SET_RSENSE_RSP"
+ *
+ * jeden command na set, jeden na read, flagy -s -c -t <cislo> a spol a podle bit masky se bude zjistovat
+ * Set rsense value response
+ */
+struct LTC_SET_RSENSE_RSP {
+    uint16_t pld_id; //!< Payload ID
+    /* empty */
+};
+
+/* Associated constant values */
+
+#define LTC_SET_RSENSE_RSP_CMD_ID 3
+
+/** sizeof(SET_RSENSE_RSP) */
+#define LTC_SET_RSENSE_RSP_C_SIZE (sizeof(struct LTC_SET_RSENSE_RSP))
+
+/** Byte size of LTC_SET_RSENSE_RSP in binary form */
+#define LTC_SET_RSENSE_RSP_BIN_SIZE 1
+
+/** Payload LTC_SET_RSENSE_RSP CSP source address */
+#define LTC_SET_RSENSE_RSP_SRC_ADDR 13
+
+/** Payload LTC_SET_RSENSE_RSP CSP source port */
+#define LTC_SET_RSENSE_RSP_SRC_PORT 10
 
 /** @}*/
 
@@ -297,6 +357,22 @@ pld_error_t LTC_READ_TEMP_RSP_parse(const uint8_t *payload, size_t length, pld_a
 /** @brief Parse a binary payload into the "READ_TEMP_RSP" payload struct (static version) */
 pld_error_t LTC_READ_TEMP_RSP_parse_s(const uint8_t *payload, size_t length, struct LTC_READ_TEMP_RSP *output);
 
+#if PLD_HAVE_ALLOC
+/** @brief Parse a binary payload into the "SET_RSENSE_REQ" payload struct. */
+pld_error_t LTC_SET_RSENSE_REQ_parse(const uint8_t *payload, size_t length, pld_alloc_fn alloc, struct LTC_SET_RSENSE_REQ **output);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Parse a binary payload into the "SET_RSENSE_REQ" payload struct (static version) */
+pld_error_t LTC_SET_RSENSE_REQ_parse_s(const uint8_t *payload, size_t length, struct LTC_SET_RSENSE_REQ *output);
+
+#if PLD_HAVE_ALLOC
+/** @brief Parse a binary payload into the "SET_RSENSE_RSP" payload struct. */
+pld_error_t LTC_SET_RSENSE_RSP_parse(const uint8_t *payload, size_t length, pld_alloc_fn alloc, struct LTC_SET_RSENSE_RSP **output);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Parse a binary payload into the "SET_RSENSE_RSP" payload struct (static version) */
+pld_error_t LTC_SET_RSENSE_RSP_parse_s(const uint8_t *payload, size_t length, struct LTC_SET_RSENSE_RSP *output);
+
 /** @}*/
 
 /** @defgroup payloads_building Payload building
@@ -363,6 +439,22 @@ pld_error_t LTC_READ_TEMP_RSP_build(const struct LTC_READ_TEMP_RSP *data, pld_al
 /** @brief Encode payload struct "READ_TEMP_RSP" to its binary form. (static version) */
 pld_error_t LTC_READ_TEMP_RSP_build_s(const struct LTC_READ_TEMP_RSP *data, uint8_t *output, size_t capacity);
 
+#if PLD_HAVE_ALLOC
+/** @brief Encode payload struct "SET_RSENSE_REQ" to its binary form. */
+pld_error_t LTC_SET_RSENSE_REQ_build(const struct LTC_SET_RSENSE_REQ *data, pld_alloc_fn alloc, uint8_t **output, size_t *len);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Encode payload struct "SET_RSENSE_REQ" to its binary form. (static version) */
+pld_error_t LTC_SET_RSENSE_REQ_build_s(const struct LTC_SET_RSENSE_REQ *data, uint8_t *output, size_t capacity);
+
+#if PLD_HAVE_ALLOC
+/** @brief Encode payload struct "SET_RSENSE_RSP" to its binary form. Data may be NULL. */
+pld_error_t LTC_SET_RSENSE_RSP_build(const struct LTC_SET_RSENSE_RSP *data, pld_alloc_fn alloc, uint8_t **output, size_t *len);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Encode payload struct "SET_RSENSE_RSP" to its binary form. Data may be NULL. (static version) */
+pld_error_t LTC_SET_RSENSE_RSP_build_s(const struct LTC_SET_RSENSE_RSP *data, uint8_t *output, size_t capacity);
+
 /** @}*/
 
 #if PLD_HAVE_EXPORT
@@ -397,6 +489,12 @@ pld_error_t LTC_READ_TEMP_REQ_to_json(const struct LTC_READ_TEMP_REQ *data, enum
 
 /** @brief Export payload struct "READ_TEMP_RSP" to JSON (without look-up) */
 pld_error_t LTC_READ_TEMP_RSP_to_json(const struct LTC_READ_TEMP_RSP *data, enum pld_export_json_style style, cJSON** output);
+
+/** @brief Export payload struct "SET_RSENSE_REQ" to JSON (without look-up) */
+pld_error_t LTC_SET_RSENSE_REQ_to_json(const struct LTC_SET_RSENSE_REQ *data, enum pld_export_json_style style, cJSON** output);
+
+/** @brief Export payload struct "SET_RSENSE_RSP" to JSON (without look-up) */
+pld_error_t LTC_SET_RSENSE_RSP_to_json(const struct LTC_SET_RSENSE_RSP *data, enum pld_export_json_style style, cJSON** output);
 
 /** @}*/
 #endif /* PLD_HAVE_EXPORT */

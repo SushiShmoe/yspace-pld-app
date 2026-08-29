@@ -288,7 +288,7 @@ pld_error_t LTC_READ_TEMP_RSP_parse_s(const uint8_t * bytes, const size_t length
     
     output->result_ready = (uint8_t)(*bytes++);
     
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 20; i++) {
         output->TempRslt[i].channel = (uint8_t)(*bytes++);
         output->TempRslt[i].status = (uint8_t)(*bytes++);
         tmp32 = 0;
@@ -297,7 +297,100 @@ pld_error_t LTC_READ_TEMP_RSP_parse_s(const uint8_t * bytes, const size_t length
         tmp32 |= (uint32_t) *bytes++ << 8;
         tmp32 |= (uint32_t) *bytes++;
         output->TempRslt[i].temperature = ((x32_t){ .u=(tmp32) }).f;
+        tmp32 = 0;
+        tmp32 |= (uint32_t) *bytes++ << 24;
+        tmp32 |= (uint32_t) *bytes++ << 16;
+        tmp32 |= (uint32_t) *bytes++ << 8;
+        tmp32 |= (uint32_t) *bytes++;
+        output->TempRslt[i].raw = ((x32_t){ .u=(tmp32) }).f;
     }
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_SET_RSENSE_REQ_parse(const uint8_t * bytes, const size_t length, pld_alloc_fn alloc, struct LTC_SET_RSENSE_REQ **output) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_parse");
+    if (length != LTC_SET_RSENSE_REQ_BIN_SIZE) return PLD_ERR_LENGTH;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    struct LTC_SET_RSENSE_REQ *data = alloc(LTC_SET_RSENSE_REQ_C_SIZE);
+    if (NULL == data) {
+        pld_log_error("payload struct alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    *output = data;
+    
+    return LTC_SET_RSENSE_REQ_parse_s(bytes, length, data);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_SET_RSENSE_REQ_parse_s(const uint8_t * bytes, const size_t length, struct LTC_SET_RSENSE_REQ *output) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_parse_s");
+    uint32_t tmp32 = 0;
+    if (length != LTC_SET_RSENSE_REQ_BIN_SIZE) return PLD_ERR_LENGTH;
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!bytes) {
+        pld_log_error("buffer is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    output->pld_id = LTC_SET_RSENSE_REQ_ID;
+    
+    /* parsing */
+    bytes++;
+    
+    tmp32 = 0;
+    tmp32 |= (uint32_t) *bytes++ << 24;
+    tmp32 |= (uint32_t) *bytes++ << 16;
+    tmp32 |= (uint32_t) *bytes++ << 8;
+    tmp32 |= (uint32_t) *bytes;
+    output->val = ((x32_t){ .u=(tmp32) }).f;
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_SET_RSENSE_RSP_parse(const uint8_t * bytes, const size_t length, pld_alloc_fn alloc, struct LTC_SET_RSENSE_RSP **output) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_parse");
+    if (length != LTC_SET_RSENSE_RSP_BIN_SIZE) return PLD_ERR_LENGTH;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    struct LTC_SET_RSENSE_RSP *data = alloc(LTC_SET_RSENSE_RSP_C_SIZE);
+    if (NULL == data) {
+        pld_log_error("payload struct alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    *output = data;
+    
+    return LTC_SET_RSENSE_RSP_parse_s(bytes, length, data);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_SET_RSENSE_RSP_parse_s(const uint8_t * bytes, const size_t length, struct LTC_SET_RSENSE_RSP *output) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_parse_s");
+    if (length != LTC_SET_RSENSE_RSP_BIN_SIZE) return PLD_ERR_LENGTH;
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!bytes) {
+        pld_log_error("buffer is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    output->pld_id = LTC_SET_RSENSE_RSP_ID;
     
     return PLD_OK;
 }
@@ -802,7 +895,7 @@ pld_error_t LTC_READ_TEMP_RSP_build_s(const struct LTC_READ_TEMP_RSP * const dat
     
     *output++ = (uint8_t)(data->result_ready);
     
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 20; i++) {
         *output++ = (uint8_t)(data->TempRslt[i].channel);
         *output++ = (uint8_t)(data->TempRslt[i].status);
         tmp32 = ((x32_t){ .f=(data->TempRslt[i].temperature) }).u;
@@ -810,7 +903,167 @@ pld_error_t LTC_READ_TEMP_RSP_build_s(const struct LTC_READ_TEMP_RSP * const dat
         *output++ = (uint8_t) ((tmp32 >> 16) & 0xff);
         *output++ = (uint8_t) ((tmp32 >> 8) & 0xff);
         *output++ = (uint8_t) (tmp32 & 0xff);
+        tmp32 = ((x32_t){ .f=(data->TempRslt[i].raw) }).u;
+        *output++ = (uint8_t) ((tmp32 >> 24) & 0xff);
+        *output++ = (uint8_t) ((tmp32 >> 16) & 0xff);
+        *output++ = (uint8_t) ((tmp32 >> 8) & 0xff);
+        *output++ = (uint8_t) (tmp32 & 0xff);
     }
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_SET_RSENSE_REQ_build(const struct LTC_SET_RSENSE_REQ * const data, pld_alloc_fn alloc, uint8_t **output, size_t *len) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_build");
+    const size_t byte_size = LTC_SET_RSENSE_REQ_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!len) {
+        pld_log_error("len is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_SET_RSENSE_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_SET_RSENSE_REQ_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_SET_RSENSE_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    uint8_t *pld = alloc(byte_size);
+    if (NULL == pld) {
+        pld_log_error("payload buffer alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    
+    *output = pld;
+    *len = byte_size;
+    
+    return LTC_SET_RSENSE_REQ_build_s(data, pld, byte_size);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_SET_RSENSE_REQ_build_s(const struct LTC_SET_RSENSE_REQ * const data, uint8_t *output, size_t capacity) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_build_s");
+    uint32_t tmp32 = 0;
+    const size_t byte_size = LTC_SET_RSENSE_REQ_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_SET_RSENSE_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_SET_RSENSE_REQ_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_SET_RSENSE_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    if (capacity < byte_size) {
+        pld_log_error("insufficient buffer capacity (%d, need %d)", (int)capacity, (int)byte_size);
+        return PLD_ERR_LENGTH;
+    }
+    
+    *output++ = 0x03;
+    
+    tmp32 = ((x32_t){ .f=(data->val) }).u;
+    *output++ = (uint8_t) ((tmp32 >> 24) & 0xff);
+    *output++ = (uint8_t) ((tmp32 >> 16) & 0xff);
+    *output++ = (uint8_t) ((tmp32 >> 8) & 0xff);
+    *output++ = (uint8_t) (tmp32 & 0xff);
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_SET_RSENSE_RSP_build(const struct LTC_SET_RSENSE_RSP * const data, pld_alloc_fn alloc, uint8_t **output, size_t *len) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_build");
+    const size_t byte_size = LTC_SET_RSENSE_RSP_BIN_SIZE;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!len) {
+        pld_log_error("len is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_SET_RSENSE_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_SET_RSENSE_RSP_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_SET_RSENSE_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    uint8_t *pld = alloc(byte_size);
+    if (NULL == pld) {
+        pld_log_error("payload buffer alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    
+    *output = pld;
+    *len = byte_size;
+    
+    return LTC_SET_RSENSE_RSP_build_s(data, pld, byte_size);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_SET_RSENSE_RSP_build_s(const struct LTC_SET_RSENSE_RSP * const data, uint8_t *output, size_t capacity) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_build_s");
+    const size_t byte_size = LTC_SET_RSENSE_RSP_BIN_SIZE;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_SET_RSENSE_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_SET_RSENSE_RSP_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_SET_RSENSE_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    if (capacity < byte_size) {
+        pld_log_error("insufficient buffer capacity (%d, need %d)", (int)capacity, (int)byte_size);
+        return PLD_ERR_LENGTH;
+    }
+    
+    *output++ = 0x03;
     
     return PLD_OK;
 }
@@ -843,6 +1096,16 @@ static bool LTC_READ_TEMP_REQ_test(const uint8_t * const bytes) {
 /** Test constants in a "READ_TEMP_RSP" payload */
 static bool LTC_READ_TEMP_RSP_test(const uint8_t * const bytes) {
     return (bytes[0] == 0x02);
+}
+
+/** Test constants in a "SET_RSENSE_REQ" payload */
+static bool LTC_SET_RSENSE_REQ_test(const uint8_t * const bytes) {
+    return (bytes[0] == 0x03);
+}
+
+/** Test constants in a "SET_RSENSE_RSP" payload */
+static bool LTC_SET_RSENSE_RSP_test(const uint8_t * const bytes) {
+    return (bytes[0] == 0x03);
 }
 
 #if PLD_HAVE_EXPORT
@@ -1256,7 +1519,7 @@ static pld_error_t LTC_READ_TEMP_RSP_to_json_inner(const struct LTC_READ_TEMP_RS
             cJSON_AddItemToObjectCS(output, "result_ready", item0);
             CJSON_TRY(item0 = cJSON_CreateArray());
             cJSON_AddItemToObjectCS(output, "TempRslt", item0);
-            for (i = 0; i < 4; i++) {
+            for (i = 0; i < 20; i++) {
                 CJSON_TRY(item1 = cJSON_CreateObject());
                 cJSON_AddItemToArray(item0, item1);
                 CJSON_TRY(item2 = cJSON_CreateNumber(data->TempRslt[i].channel));
@@ -1265,6 +1528,8 @@ static pld_error_t LTC_READ_TEMP_RSP_to_json_inner(const struct LTC_READ_TEMP_RS
                 cJSON_AddItemToObjectCS(item1, "status", item2);
                 CJSON_TRY(item2 = cJSON_CreateNumber(data->TempRslt[i].temperature));
                 cJSON_AddItemToObjectCS(item1, "temperature", item2);
+                CJSON_TRY(item2 = cJSON_CreateNumber(data->TempRslt[i].raw));
+                cJSON_AddItemToObjectCS(item1, "raw", item2);
             }
             break;
         case EXPORT_JSON_ANNOTATED:
@@ -1281,7 +1546,7 @@ static pld_error_t LTC_READ_TEMP_RSP_to_json_inner(const struct LTC_READ_TEMP_RS
             cJSON_AddItemToObjectCS(item0, "type", item1);
             CJSON_TRY(item1 = cJSON_CreateArray());
             cJSON_AddItemToObjectCS(item0, "value", item1);
-            for (i = 0; i < 4; i++) {
+            for (i = 0; i < 20; i++) {
                 CJSON_TRY(item2 = cJSON_CreateObject());
                 cJSON_AddItemToArray(item1, item2);
                 CJSON_TRY(item4 = cJSON_CreateStringReference("struct"));
@@ -1312,6 +1577,14 @@ static pld_error_t LTC_READ_TEMP_RSP_to_json_inner(const struct LTC_READ_TEMP_RS
                 cJSON_AddItemToObjectCS(item5, "type", item6);
                 CJSON_TRY(item4 = cJSON_CreateNumber(data->TempRslt[i].temperature));
                 cJSON_AddItemToObjectCS(item5, "value", item4);
+                CJSON_TRY(item5 = cJSON_CreateObject());
+                cJSON_AddItemToObjectCS(item3, "raw", item5);
+                CJSON_TRY(item6 = cJSON_CreateStringReference("Raw Voltage"));
+                cJSON_AddItemToObjectCS(item5, "descr", item6);
+                CJSON_TRY(item6 = cJSON_CreateStringReference("f32"));
+                cJSON_AddItemToObjectCS(item5, "type", item6);
+                CJSON_TRY(item4 = cJSON_CreateNumber(data->TempRslt[i].raw));
+                cJSON_AddItemToObjectCS(item5, "value", item4);
             }
             break;
         default:
@@ -1327,9 +1600,119 @@ pld_error_t LTC_READ_TEMP_RSP_to_json(const struct LTC_READ_TEMP_RSP *data, enum
     pld_log_trace("LTC_READ_TEMP_RSP_to_json");
     return pld_to_json_by_spec(PldSpec_LTC_READ_TEMP_RSP, data, style, output);
 }
+
+static pld_error_t LTC_SET_RSENSE_REQ_to_json_inner(const struct LTC_SET_RSENSE_REQ *data, enum pld_export_json_style style, cJSON* output) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_to_json_inner");
+
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    #if PLD_EXPORT_FUNCS_CHECK_ID
+        if (data->pld_id != LTC_SET_RSENSE_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+
+    cJSON *item0 = NULL;
+    cJSON *item1 = NULL;
+    cJSON *item2 = NULL;
+    
+
+    // suppress unused warnings
+    (void)data;
+    (void)output;
+
+    switch (style) {
+        case EXPORT_JSON_DATAONLY:
+            pld_log_trace("export as data-only");
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->val));
+            cJSON_AddItemToObjectCS(output, "val", item0);
+            break;
+        case EXPORT_JSON_ANNOTATED:
+            pld_log_trace("export annotated");
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "val", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("Rsense value to set"));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("f32"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->val));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            break;
+        default:
+            pld_log_error("bad export style");
+            return PLD_ERR_NOT_IMPLEMENTED;
+    }
+    return PLD_OK;
+cjfail:
+    return PLD_ERR_ALLOC; /* will be deallocated by caller */
+}
+
+pld_error_t LTC_SET_RSENSE_REQ_to_json(const struct LTC_SET_RSENSE_REQ *data, enum pld_export_json_style style, cJSON** output) {
+    pld_log_trace("LTC_SET_RSENSE_REQ_to_json");
+    return pld_to_json_by_spec(PldSpec_LTC_SET_RSENSE_REQ, data, style, output);
+}
+
+static pld_error_t LTC_SET_RSENSE_RSP_to_json_inner(const struct LTC_SET_RSENSE_RSP *data, enum pld_export_json_style style, cJSON* output) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_to_json_inner");
+
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    #if PLD_EXPORT_FUNCS_CHECK_ID
+        if (data->pld_id != LTC_SET_RSENSE_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_SET_RSENSE_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+
+    
+    
+
+    // suppress unused warnings
+    (void)data;
+    (void)output;
+
+    switch (style) {
+        case EXPORT_JSON_DATAONLY:
+            pld_log_trace("export as data-only");
+            
+            break;
+        case EXPORT_JSON_ANNOTATED:
+            pld_log_trace("export annotated");
+            
+            break;
+        default:
+            pld_log_error("bad export style");
+            return PLD_ERR_NOT_IMPLEMENTED;
+    }
+    return PLD_OK;
+cjfail:
+    return PLD_ERR_ALLOC; /* will be deallocated by caller */
+}
+
+pld_error_t LTC_SET_RSENSE_RSP_to_json(const struct LTC_SET_RSENSE_RSP *data, enum pld_export_json_style style, cJSON** output) {
+    pld_log_trace("LTC_SET_RSENSE_RSP_to_json");
+    return pld_to_json_by_spec(PldSpec_LTC_SET_RSENSE_RSP, data, style, output);
+}
 #endif
 
-static const struct pld_spec payload_specs[6] = {
+static const struct pld_spec payload_specs[8] = {
     {
         .pld_id = LTC_SET_MODE_REQ_ID,
         .address = {
@@ -1473,7 +1856,7 @@ static const struct pld_spec payload_specs[6] = {
             .dst = 255,
             .dport = 255
         },
-        .bin_size = 26,
+        .bin_size = 202,
         .c_size = sizeof(struct LTC_READ_TEMP_RSP),
         .growable = false,
         .tail_elem_bin_size = 0,
@@ -1491,6 +1874,60 @@ static const struct pld_spec payload_specs[6] = {
         .descr = "LTC2983 read temperature response",
         .data_to_json = (fn_data_to_json_t) LTC_READ_TEMP_RSP_to_json_inner
     #endif /* PLD_HAVE_EXPORT */
+    },
+    {
+        .pld_id = LTC_SET_RSENSE_REQ_ID,
+        .address = {
+            .src = 255,
+            .sport = 255,
+            .dst = 13,
+            .dport = 10
+        },
+        .bin_size = 5,
+        .c_size = sizeof(struct LTC_SET_RSENSE_REQ),
+        .growable = false,
+        .tail_elem_bin_size = 0,
+        .tail_elem_c_size = 0,
+        .recognize = true,
+        .tester = LTC_SET_RSENSE_REQ_test,
+    #if PLD_HAVE_ALLOC
+        .parse = (fn_parse_t) LTC_SET_RSENSE_REQ_parse,
+        .build = (fn_build_t) LTC_SET_RSENSE_REQ_build,
+    #endif /* PLD_HAVE_ALLOC */
+        .parse_static = (fn_parse_static_t) LTC_SET_RSENSE_REQ_parse_s,
+        .build_static = (fn_build_static_t) LTC_SET_RSENSE_REQ_build_s,
+        .name = "LTC_SET_RSENSE_REQ",
+    #if PLD_HAVE_EXPORT
+        .descr = "Set rsense value",
+        .data_to_json = (fn_data_to_json_t) LTC_SET_RSENSE_REQ_to_json_inner
+    #endif /* PLD_HAVE_EXPORT */
+    },
+    {
+        .pld_id = LTC_SET_RSENSE_RSP_ID,
+        .address = {
+            .src = 13,
+            .sport = 10,
+            .dst = 255,
+            .dport = 255
+        },
+        .bin_size = 1,
+        .c_size = sizeof(struct LTC_SET_RSENSE_RSP),
+        .growable = false,
+        .tail_elem_bin_size = 0,
+        .tail_elem_c_size = 0,
+        .recognize = true,
+        .tester = LTC_SET_RSENSE_RSP_test,
+    #if PLD_HAVE_ALLOC
+        .parse = (fn_parse_t) LTC_SET_RSENSE_RSP_parse,
+        .build = (fn_build_t) LTC_SET_RSENSE_RSP_build,
+    #endif /* PLD_HAVE_ALLOC */
+        .parse_static = (fn_parse_static_t) LTC_SET_RSENSE_RSP_parse_s,
+        .build_static = (fn_build_static_t) LTC_SET_RSENSE_RSP_build_s,
+        .name = "LTC_SET_RSENSE_RSP",
+    #if PLD_HAVE_EXPORT
+        .descr = "jeden command na set, jeden na read, flagy -s -c -t <cislo> a spol a podle bit masky se bude zjistovat\nSet rsense value response",
+        .data_to_json = (fn_data_to_json_t) LTC_SET_RSENSE_RSP_to_json_inner
+    #endif /* PLD_HAVE_EXPORT */
     }
 };
 
@@ -1499,7 +1936,7 @@ const struct pld_module Payloads_LTC = {
     .name = "LTC",
     .specs = payload_specs,
     .start_index = 1,
-    .count = 6,
+    .count = 8,
 };
 
 const struct pld_spec * const PldSpec_LTC_SET_MODE_REQ = &payload_specs[0];
@@ -1508,3 +1945,5 @@ const struct pld_spec * const PldSpec_LTC_GET_STATUS_REQ = &payload_specs[2];
 const struct pld_spec * const PldSpec_LTC_GET_STATUS_RSP = &payload_specs[3];
 const struct pld_spec * const PldSpec_LTC_READ_TEMP_REQ = &payload_specs[4];
 const struct pld_spec * const PldSpec_LTC_READ_TEMP_RSP = &payload_specs[5];
+const struct pld_spec * const PldSpec_LTC_SET_RSENSE_REQ = &payload_specs[6];
+const struct pld_spec * const PldSpec_LTC_SET_RSENSE_RSP = &payload_specs[7];
