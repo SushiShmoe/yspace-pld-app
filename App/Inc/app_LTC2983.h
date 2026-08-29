@@ -58,4 +58,6 @@ uint8_t LTC2983_AppIsResultReady(void);
 /* A public function to get the newest results */
 uint8_t LTC2983_AppGetResults(LTC2983ConvResult_t *results);
 
+void LTC2983_ChangeRsenseValue(float rsenseVal);
+
 #endif /* INC_LTC2983_CONFIG_H_ */

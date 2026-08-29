@@ -367,6 +367,22 @@ void LTC2983_StopMeasurement(){
 	taskEXIT_CRITICAL();
 }
 
+/* A function to stop continuous measurement. */
+void LTC2983_ChangeRsenseValue(float rsenseVal){
+    taskENTER_CRITICAL();
+	appHandle.mode = STOP_MODE;
+
+	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_START_FLAG);
+
+	if (rsenseVal == 0){
+		rsenseVal = DEFAULT_RSENSE_VALUE;
+	}
+
+	ltc1Handle.ChannelConfigs->Configs[0].Data = LTC2983_SENSOR_TYPE__SENSE_RESISTOR | (uint32_t)(rsenseVal * 1024);
+
+	taskEXIT_CRITICAL();
+}
+
 /* Main function to handle the LTC2983 thread. */
 static void _LTC2983_Manager(){
 	while (1){

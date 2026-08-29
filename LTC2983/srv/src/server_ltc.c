@@ -23,6 +23,7 @@
 static int8_t server_set_mode(void* vreq, void* vrpl);
 static int8_t server_get_status(void* vreq, void* vrpl);
 static int8_t server_read_temp(void* vreq, void* vrpl);
+static int8_t server_set_rsense(void* vreq, void* vrpl);
 
 void ltc_service_handler(csp_conn_t* conn, csp_packet_t *packet) {
   (void)conn;
@@ -86,6 +87,17 @@ void ltc_service_handler(csp_conn_t* conn, csp_packet_t *packet) {
       txn.rsp_build_s = (fn_build_static_t)LTC_READ_TEMP_RSP_build_s;
       // ... and a callback to a function that will actually do something
       txn.fce = server_read_temp;
+    } break;
+
+    case LTC_SET_RSENSE_RSP_CMD_ID: {
+      // each transaction needs at least the size of the reply, ...
+      txn.bin_size_rsp = LTC_SET_RSENSE_RSP_BIN_SIZE;
+      // ... function to be used to parse the request, ...
+      txn.req_parse_s = (fn_parse_static_t)LTC_SET_RSENSE_REQ_parse_s;
+      // ... function to be used to build a reply, ...
+      txn.rsp_build_s = (fn_build_static_t)LTC_SET_RSENSE_RSP_build_s;
+      // ... and a callback to a function that will actually do something
+      txn.fce = server_set_rsense;
     } break;
 
     default: {
@@ -184,3 +196,15 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
   // these functions have to return a status code
   return(SERVICE_ERR_NONE);
 }
+
+static int8_t server_set_rsense(void* vreq, void* vrpl) {
+  struct LTC_SET_RSENSE_REQ* req = (struct LTC_SET_RSENSE_REQ*)vreq;
+  struct LTC_SET_RSENSE_RSP* rpl = (struct LTC_SET_RSENSE_RSP*)vrpl;
+  rpl->pld_id = LTC_SET_RSENSE_RSP_ID;
+
+  LTC2983_ChangeRsenseValue(req->val);
+
+  // these functions have to return a status code
+  return(SERVICE_ERR_NONE);
+}
+
