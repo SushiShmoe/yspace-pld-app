@@ -237,6 +237,18 @@ static void _LTC2983_MeasurementSequence(LTC2983Channel_t channel){
 		return;
 	}
 
+	if (channel == 0){
+		for (int i = 0; i < TEMP_RSLT_COUNT; i++){
+			LTC2983_ReadRawVoltage(&ltc1Handle, i+1);//validChannelList[i]);
+
+			flags = osThreadFlagsWait(MEASUREMENT_DONE_FLAG, osFlagsWaitAny, MEASUREMENT_TIMEOUT_MS);
+		}
+	} else{
+		LTC2983_ReadRawVoltage(&ltc1Handle, channel);
+
+		flags = osThreadFlagsWait(MEASUREMENT_DONE_FLAG, osFlagsWaitAny, MEASUREMENT_TIMEOUT_MS);
+	}
+
 	_LTC2983_WriteResults();
 }
 

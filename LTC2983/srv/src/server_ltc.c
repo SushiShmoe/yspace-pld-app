@@ -117,7 +117,7 @@ static int8_t server_set_mode(void* vreq, void* vrpl) {
 
   LTC2983_AppMeasurementMode targetMode = (LTC2983_AppMeasurementMode)req->mode;
 
-  LTC2983_AppSetMode(targetMode);
+  LTC2983_AppSetMode(targetMode, 0);
 
   uint32_t frequency = req->frequency;
   if (frequency > 0){
@@ -181,6 +181,7 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 		rpl->TempRslt[i].channel = 0;
 	    rpl->TempRslt[i].temperature = 0;
 	    rpl->TempRslt[i].status = LTC2983_ENUM_CONV_STATUS_INVALID;
+		rpl->TempRslt[i].raw = 0;
 	  }
 
 
@@ -191,6 +192,7 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 	rpl->TempRslt[i].channel = tempResults[i].Channel;
 	rpl->TempRslt[i].temperature = tempResults[i].Temperature;
 	rpl->TempRslt[i].status = tempResults[i].Status;
+	rpl->TempRslt[i].raw = tempResults[i].Raw;
   }
 
   // these functions have to return a status code
