@@ -420,14 +420,24 @@ int LTC2983_ChangeChnlCfg(uint8_t chnl, uint8_t rst, uint32_t data){
 	for (int i = 0; i < VALID_CHANNEL_LIST_COUNT; i++){
 		if (appHandle.originalConfigs[i].Channel == chnl){
 			orig_cfg = &appHandle.originalConfigs[i];
+			break;
 		}
 	}
 
 	if (orig_cfg){
+		LTC2983ChannelConfig_t *cfg = NULL;
+
+		for (int i = 0; i < VALID_CHANNEL_LIST_COUNT; i++){
+			if (ltc1Handle.ChannelConfigs->Configs[i].Channel == chnl){
+				cfg = &ltc1Handle.ChannelConfigs->Configs[i];
+				break;
+			}
+		}
+
 		if (rst){
-			ltc1Handle.ChannelConfigs->Configs[chnl-1].Data = orig_cfg->Data;
+			cfg->Data = orig_cfg->Data;
 		} else{
-			ltc1Handle.ChannelConfigs->Configs[chnl-1].Data = data;
+			cfg->Data = data;
 		}
 
 		taskEXIT_CRITICAL();
