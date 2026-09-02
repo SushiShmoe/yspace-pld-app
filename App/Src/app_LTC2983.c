@@ -387,9 +387,12 @@ void LTC2983_StopMeasurement(){
 	taskEXIT_CRITICAL();
 }
 
-/* A function to stop continuous measurement. */
+/* A function to change the value of RSENSE. */
 void LTC2983_ChangeRsenseValue(float rsenseVal){
     taskENTER_CRITICAL();
+
+    // FIXME should be protected in a mutex
+
 	appHandle.mode = STOP_MODE;
 
 	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_START_FLAG);
