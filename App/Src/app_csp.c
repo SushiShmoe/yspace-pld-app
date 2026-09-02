@@ -92,6 +92,7 @@ void StartcspTask(void *argument)
     csp_rtable_set(24, 5, iface_I2C, 15);
 	csp_rtable_set(11, 5, iface_I2C, 9);
 	csp_rtable_set(26, 5, iface_I2C, 15);
+	csp_rtable_set(30, 5, iface_I2C, 9);
 
     cspListenerTaskHandle = osThreadNew(StartcspListenerTask, NULL, &cspListenerTask_attributes);
     cspRouterTaskHandle = osThreadNew(StartcspRouterTask, NULL, &cspRouterTask_attributes);
