@@ -22,7 +22,9 @@ enum LTC_PayloadType {
     LTC_READ_TEMP_REQ_ID = 5,
     LTC_READ_TEMP_RSP_ID = 6,
     LTC_SET_RSENSE_REQ_ID = 7,
-    LTC_SET_RSENSE_RSP_ID = 8
+    LTC_SET_RSENSE_RSP_ID = 8,
+    LTC_CHANGE_CHNL_CFG_REQ_ID = 9,
+    LTC_CHANGE_CHNL_CFG_RSP_ID = 10
 };
 
 /** @defgroup spec_pointers Payload specifications
@@ -40,6 +42,8 @@ extern const struct pld_spec * const PldSpec_LTC_READ_TEMP_REQ;
 extern const struct pld_spec * const PldSpec_LTC_READ_TEMP_RSP;
 extern const struct pld_spec * const PldSpec_LTC_SET_RSENSE_REQ;
 extern const struct pld_spec * const PldSpec_LTC_SET_RSENSE_RSP;
+extern const struct pld_spec * const PldSpec_LTC_CHANGE_CHNL_CFG_REQ;
+extern const struct pld_spec * const PldSpec_LTC_CHANGE_CHNL_CFG_RSP;
 
 /** @}*/
 
@@ -183,6 +187,8 @@ struct LTC_READ_TEMP_REQ {
     uint8_t channel_id;
     /** Forces a new measurement if results are not ready */
     uint8_t force_measurement;
+    /** Does adc reading on channel instead of the one that was configured. */
+    uint8_t do_adc;
 };
 
 /* Associated constant values */
@@ -193,7 +199,7 @@ struct LTC_READ_TEMP_REQ {
 #define LTC_READ_TEMP_REQ_C_SIZE (sizeof(struct LTC_READ_TEMP_REQ))
 
 /** Byte size of LTC_READ_TEMP_REQ in binary form */
-#define LTC_READ_TEMP_REQ_BIN_SIZE 3
+#define LTC_READ_TEMP_REQ_BIN_SIZE 4
 
 /** Payload LTC_READ_TEMP_REQ CSP destination address */
 #define LTC_READ_TEMP_REQ_DST_ADDR 13
@@ -267,7 +273,6 @@ struct LTC_SET_RSENSE_REQ {
 /**
  * Payload "SET_RSENSE_RSP"
  *
- * jeden command na set, jeden na read, flagy -s -c -t <cislo> a spol a podle bit masky se bude zjistovat
  * Set rsense value response
  */
 struct LTC_SET_RSENSE_RSP {
@@ -290,6 +295,59 @@ struct LTC_SET_RSENSE_RSP {
 
 /** Payload LTC_SET_RSENSE_RSP CSP source port */
 #define LTC_SET_RSENSE_RSP_SRC_PORT 10
+
+/**
+ * Payload "CHANGE_CHNL_CFG_REQ"
+ *
+ * Change channel config request
+ */
+struct LTC_CHANGE_CHNL_CFG_REQ {
+    uint16_t pld_id; //!< Payload ID
+    /** A flag to reset channel to its original config */
+    uint8_t reset;
+    /** Target channel to change config on */
+    uint8_t channel;
+    /** Desired config values */
+    uint32_t cfg;
+};
+
+/* Associated constant values */
+
+#define LTC_CHANGE_CHNL_CFG_REQ_CMD_ID 4
+
+/** sizeof(CHANGE_CHNL_CFG_REQ) */
+#define LTC_CHANGE_CHNL_CFG_REQ_C_SIZE (sizeof(struct LTC_CHANGE_CHNL_CFG_REQ))
+
+/** Byte size of LTC_CHANGE_CHNL_CFG_REQ in binary form */
+#define LTC_CHANGE_CHNL_CFG_REQ_BIN_SIZE 7
+
+/** Payload LTC_CHANGE_CHNL_CFG_REQ CSP destination address */
+#define LTC_CHANGE_CHNL_CFG_REQ_DST_ADDR 13
+
+/** Payload LTC_CHANGE_CHNL_CFG_REQ CSP destination port */
+#define LTC_CHANGE_CHNL_CFG_REQ_DST_PORT 10
+
+/** Payload "CHANGE_CHNL_CFG_RSP" */
+struct LTC_CHANGE_CHNL_CFG_RSP {
+    uint16_t pld_id; //!< Payload ID
+    uint8_t rsp;
+};
+
+/* Associated constant values */
+
+#define LTC_CHANGE_CHNL_CFG_RSP_CMD_ID 4
+
+/** sizeof(CHANGE_CHNL_CFG_RSP) */
+#define LTC_CHANGE_CHNL_CFG_RSP_C_SIZE (sizeof(struct LTC_CHANGE_CHNL_CFG_RSP))
+
+/** Byte size of LTC_CHANGE_CHNL_CFG_RSP in binary form */
+#define LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE 2
+
+/** Payload LTC_CHANGE_CHNL_CFG_RSP CSP source address */
+#define LTC_CHANGE_CHNL_CFG_RSP_SRC_ADDR 13
+
+/** Payload LTC_CHANGE_CHNL_CFG_RSP CSP source port */
+#define LTC_CHANGE_CHNL_CFG_RSP_SRC_PORT 10
 
 /** @}*/
 
@@ -373,6 +431,22 @@ pld_error_t LTC_SET_RSENSE_RSP_parse(const uint8_t *payload, size_t length, pld_
 /** @brief Parse a binary payload into the "SET_RSENSE_RSP" payload struct (static version) */
 pld_error_t LTC_SET_RSENSE_RSP_parse_s(const uint8_t *payload, size_t length, struct LTC_SET_RSENSE_RSP *output);
 
+#if PLD_HAVE_ALLOC
+/** @brief Parse a binary payload into the "CHANGE_CHNL_CFG_REQ" payload struct. */
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_parse(const uint8_t *payload, size_t length, pld_alloc_fn alloc, struct LTC_CHANGE_CHNL_CFG_REQ **output);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Parse a binary payload into the "CHANGE_CHNL_CFG_REQ" payload struct (static version) */
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_parse_s(const uint8_t *payload, size_t length, struct LTC_CHANGE_CHNL_CFG_REQ *output);
+
+#if PLD_HAVE_ALLOC
+/** @brief Parse a binary payload into the "CHANGE_CHNL_CFG_RSP" payload struct. */
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_parse(const uint8_t *payload, size_t length, pld_alloc_fn alloc, struct LTC_CHANGE_CHNL_CFG_RSP **output);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Parse a binary payload into the "CHANGE_CHNL_CFG_RSP" payload struct (static version) */
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_parse_s(const uint8_t *payload, size_t length, struct LTC_CHANGE_CHNL_CFG_RSP *output);
+
 /** @}*/
 
 /** @defgroup payloads_building Payload building
@@ -455,6 +529,22 @@ pld_error_t LTC_SET_RSENSE_RSP_build(const struct LTC_SET_RSENSE_RSP *data, pld_
 /** @brief Encode payload struct "SET_RSENSE_RSP" to its binary form. Data may be NULL. (static version) */
 pld_error_t LTC_SET_RSENSE_RSP_build_s(const struct LTC_SET_RSENSE_RSP *data, uint8_t *output, size_t capacity);
 
+#if PLD_HAVE_ALLOC
+/** @brief Encode payload struct "CHANGE_CHNL_CFG_REQ" to its binary form. */
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_build(const struct LTC_CHANGE_CHNL_CFG_REQ *data, pld_alloc_fn alloc, uint8_t **output, size_t *len);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Encode payload struct "CHANGE_CHNL_CFG_REQ" to its binary form. (static version) */
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_build_s(const struct LTC_CHANGE_CHNL_CFG_REQ *data, uint8_t *output, size_t capacity);
+
+#if PLD_HAVE_ALLOC
+/** @brief Encode payload struct "CHANGE_CHNL_CFG_RSP" to its binary form. */
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_build(const struct LTC_CHANGE_CHNL_CFG_RSP *data, pld_alloc_fn alloc, uint8_t **output, size_t *len);
+#endif /* PLD_HAVE_ALLOC */
+
+/** @brief Encode payload struct "CHANGE_CHNL_CFG_RSP" to its binary form. (static version) */
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_build_s(const struct LTC_CHANGE_CHNL_CFG_RSP *data, uint8_t *output, size_t capacity);
+
 /** @}*/
 
 #if PLD_HAVE_EXPORT
@@ -495,6 +585,12 @@ pld_error_t LTC_SET_RSENSE_REQ_to_json(const struct LTC_SET_RSENSE_REQ *data, en
 
 /** @brief Export payload struct "SET_RSENSE_RSP" to JSON (without look-up) */
 pld_error_t LTC_SET_RSENSE_RSP_to_json(const struct LTC_SET_RSENSE_RSP *data, enum pld_export_json_style style, cJSON** output);
+
+/** @brief Export payload struct "CHANGE_CHNL_CFG_REQ" to JSON (without look-up) */
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_to_json(const struct LTC_CHANGE_CHNL_CFG_REQ *data, enum pld_export_json_style style, cJSON** output);
+
+/** @brief Export payload struct "CHANGE_CHNL_CFG_RSP" to JSON (without look-up) */
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_to_json(const struct LTC_CHANGE_CHNL_CFG_RSP *data, enum pld_export_json_style style, cJSON** output);
 
 /** @}*/
 #endif /* PLD_HAVE_EXPORT */

@@ -241,7 +241,9 @@ pld_error_t LTC_READ_TEMP_REQ_parse_s(const uint8_t * bytes, const size_t length
     
     output->channel_id = (uint8_t)(*bytes++);
     
-    output->force_measurement = (uint8_t)(*bytes);
+    output->force_measurement = (uint8_t)(*bytes++);
+    
+    output->do_adc = (uint8_t)(*bytes);
     
     return PLD_OK;
 }
@@ -391,6 +393,102 @@ pld_error_t LTC_SET_RSENSE_RSP_parse_s(const uint8_t * bytes, const size_t lengt
     }
     
     output->pld_id = LTC_SET_RSENSE_RSP_ID;
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_parse(const uint8_t * bytes, const size_t length, pld_alloc_fn alloc, struct LTC_CHANGE_CHNL_CFG_REQ **output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_parse");
+    if (length != LTC_CHANGE_CHNL_CFG_REQ_BIN_SIZE) return PLD_ERR_LENGTH;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    struct LTC_CHANGE_CHNL_CFG_REQ *data = alloc(LTC_CHANGE_CHNL_CFG_REQ_C_SIZE);
+    if (NULL == data) {
+        pld_log_error("payload struct alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    *output = data;
+    
+    return LTC_CHANGE_CHNL_CFG_REQ_parse_s(bytes, length, data);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_parse_s(const uint8_t * bytes, const size_t length, struct LTC_CHANGE_CHNL_CFG_REQ *output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_parse_s");
+    uint32_t tmp32 = 0;
+    if (length != LTC_CHANGE_CHNL_CFG_REQ_BIN_SIZE) return PLD_ERR_LENGTH;
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!bytes) {
+        pld_log_error("buffer is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    output->pld_id = LTC_CHANGE_CHNL_CFG_REQ_ID;
+    
+    /* parsing */
+    bytes++;
+    
+    output->reset = (uint8_t)(*bytes++);
+    
+    output->channel = (uint8_t)(*bytes++);
+    
+    tmp32 = 0;
+    tmp32 |= (uint32_t) *bytes++ << 24;
+    tmp32 |= (uint32_t) *bytes++ << 16;
+    tmp32 |= (uint32_t) *bytes++ << 8;
+    tmp32 |= (uint32_t) *bytes;
+    output->cfg = (uint32_t)(tmp32);
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_parse(const uint8_t * bytes, const size_t length, pld_alloc_fn alloc, struct LTC_CHANGE_CHNL_CFG_RSP **output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_parse");
+    if (length != LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE) return PLD_ERR_LENGTH;
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    struct LTC_CHANGE_CHNL_CFG_RSP *data = alloc(LTC_CHANGE_CHNL_CFG_RSP_C_SIZE);
+    if (NULL == data) {
+        pld_log_error("payload struct alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    *output = data;
+    
+    return LTC_CHANGE_CHNL_CFG_RSP_parse_s(bytes, length, data);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_parse_s(const uint8_t * bytes, const size_t length, struct LTC_CHANGE_CHNL_CFG_RSP *output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_parse_s");
+    if (length != LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE) return PLD_ERR_LENGTH;
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!bytes) {
+        pld_log_error("buffer is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    output->pld_id = LTC_CHANGE_CHNL_CFG_RSP_ID;
+    
+    /* parsing */
+    bytes++;
+    
+    output->rsp = (uint8_t)(*bytes);
     
     return PLD_OK;
 }
@@ -812,6 +910,8 @@ pld_error_t LTC_READ_TEMP_REQ_build_s(const struct LTC_READ_TEMP_REQ * const dat
     
     *output++ = (uint8_t)(data->force_measurement);
     
+    *output++ = (uint8_t)(data->do_adc);
+    
     return PLD_OK;
 }
 
@@ -1068,6 +1168,177 @@ pld_error_t LTC_SET_RSENSE_RSP_build_s(const struct LTC_SET_RSENSE_RSP * const d
     return PLD_OK;
 }
 
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_build(const struct LTC_CHANGE_CHNL_CFG_REQ * const data, pld_alloc_fn alloc, uint8_t **output, size_t *len) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_build");
+    const size_t byte_size = LTC_CHANGE_CHNL_CFG_REQ_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!len) {
+        pld_log_error("len is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_CHANGE_CHNL_CFG_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_CHANGE_CHNL_CFG_REQ_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    uint8_t *pld = alloc(byte_size);
+    if (NULL == pld) {
+        pld_log_error("payload buffer alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    
+    *output = pld;
+    *len = byte_size;
+    
+    return LTC_CHANGE_CHNL_CFG_REQ_build_s(data, pld, byte_size);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_build_s(const struct LTC_CHANGE_CHNL_CFG_REQ * const data, uint8_t *output, size_t capacity) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_build_s");
+    uint32_t tmp32 = 0;
+    const size_t byte_size = LTC_CHANGE_CHNL_CFG_REQ_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_CHANGE_CHNL_CFG_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_CHANGE_CHNL_CFG_REQ_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    if (capacity < byte_size) {
+        pld_log_error("insufficient buffer capacity (%d, need %d)", (int)capacity, (int)byte_size);
+        return PLD_ERR_LENGTH;
+    }
+    
+    *output++ = 0x04;
+    
+    *output++ = (uint8_t)(data->reset);
+    
+    *output++ = (uint8_t)(data->channel);
+    
+    tmp32 = (uint32_t)(data->cfg);
+    *output++ = (uint8_t) ((tmp32 >> 24) & 0xff);
+    *output++ = (uint8_t) ((tmp32 >> 16) & 0xff);
+    *output++ = (uint8_t) ((tmp32 >> 8) & 0xff);
+    *output++ = (uint8_t) (tmp32 & 0xff);
+    
+    return PLD_OK;
+}
+
+#if PLD_HAVE_ALLOC
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_build(const struct LTC_CHANGE_CHNL_CFG_RSP * const data, pld_alloc_fn alloc, uint8_t **output, size_t *len) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_build");
+    const size_t byte_size = LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!len) {
+        pld_log_error("len is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_CHANGE_CHNL_CFG_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_CHANGE_CHNL_CFG_RSP_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    uint8_t *pld = alloc(byte_size);
+    if (NULL == pld) {
+        pld_log_error("payload buffer alloc failed");
+        return PLD_ERR_ALLOC;
+    }
+    
+    *output = pld;
+    *len = byte_size;
+    
+    return LTC_CHANGE_CHNL_CFG_RSP_build_s(data, pld, byte_size);
+}
+#endif /* PLD_HAVE_ALLOC */
+
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_build_s(const struct LTC_CHANGE_CHNL_CFG_RSP * const data, uint8_t *output, size_t capacity) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_build_s");
+    const size_t byte_size = LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE;
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+    
+    #if PLD_BUILD_FUNCS_CHECK_ID == 1
+        if (data && data->pld_id != LTC_CHANGE_CHNL_CFG_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #elif PLD_BUILD_FUNCS_CHECK_ID == 2
+        if (data && data->pld_id != PAYLOAD_ID_NONE && data->pld_id != LTC_CHANGE_CHNL_CFG_RSP_ID) {
+            pld_log_error("payload ID %d set and does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+    
+    if (capacity < byte_size) {
+        pld_log_error("insufficient buffer capacity (%d, need %d)", (int)capacity, (int)byte_size);
+        return PLD_ERR_LENGTH;
+    }
+    
+    *output++ = 0x04;
+    
+    *output++ = (uint8_t)(data->rsp);
+    
+    return PLD_OK;
+}
+
 /** Test constants in a "SET_MODE_REQ" payload */
 static bool LTC_SET_MODE_REQ_test(const uint8_t * const bytes) {
     return (bytes[0] == 0x00);
@@ -1106,6 +1377,16 @@ static bool LTC_SET_RSENSE_REQ_test(const uint8_t * const bytes) {
 /** Test constants in a "SET_RSENSE_RSP" payload */
 static bool LTC_SET_RSENSE_RSP_test(const uint8_t * const bytes) {
     return (bytes[0] == 0x03);
+}
+
+/** Test constants in a "CHANGE_CHNL_CFG_REQ" payload */
+static bool LTC_CHANGE_CHNL_CFG_REQ_test(const uint8_t * const bytes) {
+    return (bytes[0] == 0x04);
+}
+
+/** Test constants in a "CHANGE_CHNL_CFG_RSP" payload */
+static bool LTC_CHANGE_CHNL_CFG_RSP_test(const uint8_t * const bytes) {
+    return (bytes[0] == 0x04);
 }
 
 #if PLD_HAVE_EXPORT
@@ -1445,6 +1726,8 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             cJSON_AddItemToObjectCS(output, "channel_id", item0);
             CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
             cJSON_AddItemToObjectCS(output, "force_measurement", item0);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->do_adc));
+            cJSON_AddItemToObjectCS(output, "do_adc", item0);
             break;
         case EXPORT_JSON_ANNOTATED:
             pld_log_trace("export annotated");
@@ -1463,6 +1746,14 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
             cJSON_AddItemToObjectCS(item1, "type", item2);
             CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "do_adc", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("Does adc reading on channel instead of the one that was configured."));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->do_adc));
             cJSON_AddItemToObjectCS(item1, "value", item0);
             break;
         default:
@@ -1710,9 +2001,147 @@ pld_error_t LTC_SET_RSENSE_RSP_to_json(const struct LTC_SET_RSENSE_RSP *data, en
     pld_log_trace("LTC_SET_RSENSE_RSP_to_json");
     return pld_to_json_by_spec(PldSpec_LTC_SET_RSENSE_RSP, data, style, output);
 }
+
+static pld_error_t LTC_CHANGE_CHNL_CFG_REQ_to_json_inner(const struct LTC_CHANGE_CHNL_CFG_REQ *data, enum pld_export_json_style style, cJSON* output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_to_json_inner");
+
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    #if PLD_EXPORT_FUNCS_CHECK_ID
+        if (data->pld_id != LTC_CHANGE_CHNL_CFG_REQ_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_REQ_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+
+    cJSON *item0 = NULL;
+    cJSON *item1 = NULL;
+    cJSON *item2 = NULL;
+    
+
+    // suppress unused warnings
+    (void)data;
+    (void)output;
+
+    switch (style) {
+        case EXPORT_JSON_DATAONLY:
+            pld_log_trace("export as data-only");
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->reset));
+            cJSON_AddItemToObjectCS(output, "reset", item0);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->channel));
+            cJSON_AddItemToObjectCS(output, "channel", item0);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->cfg));
+            cJSON_AddItemToObjectCS(output, "cfg", item0);
+            break;
+        case EXPORT_JSON_ANNOTATED:
+            pld_log_trace("export annotated");
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "reset", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("A flag to reset channel to its original config"));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->reset));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "channel", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("Target channel to change config on"));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->channel));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "cfg", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("Desired config values"));
+            cJSON_AddItemToObjectCS(item1, "descr", item2);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u32"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->cfg));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            break;
+        default:
+            pld_log_error("bad export style");
+            return PLD_ERR_NOT_IMPLEMENTED;
+    }
+    return PLD_OK;
+cjfail:
+    return PLD_ERR_ALLOC; /* will be deallocated by caller */
+}
+
+pld_error_t LTC_CHANGE_CHNL_CFG_REQ_to_json(const struct LTC_CHANGE_CHNL_CFG_REQ *data, enum pld_export_json_style style, cJSON** output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_REQ_to_json");
+    return pld_to_json_by_spec(PldSpec_LTC_CHANGE_CHNL_CFG_REQ, data, style, output);
+}
+
+static pld_error_t LTC_CHANGE_CHNL_CFG_RSP_to_json_inner(const struct LTC_CHANGE_CHNL_CFG_RSP *data, enum pld_export_json_style style, cJSON* output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_to_json_inner");
+
+    if (!data) {
+        pld_log_error("data is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    if (!output) {
+        pld_log_error("output is NULL");
+        return PLD_ERR_BAD_ARGS;
+    }
+
+    #if PLD_EXPORT_FUNCS_CHECK_ID
+        if (data->pld_id != LTC_CHANGE_CHNL_CFG_RSP_ID) {
+            pld_log_error("payload ID %d does not match expected %d", data->pld_id, LTC_CHANGE_CHNL_CFG_RSP_ID);
+            return PLD_ERR_ID_MISMATCH;
+        }
+    #endif
+
+    cJSON *item0 = NULL;
+    cJSON *item1 = NULL;
+    cJSON *item2 = NULL;
+    
+
+    // suppress unused warnings
+    (void)data;
+    (void)output;
+
+    switch (style) {
+        case EXPORT_JSON_DATAONLY:
+            pld_log_trace("export as data-only");
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->rsp));
+            cJSON_AddItemToObjectCS(output, "rsp", item0);
+            break;
+        case EXPORT_JSON_ANNOTATED:
+            pld_log_trace("export annotated");
+            CJSON_TRY(item1 = cJSON_CreateObject());
+            cJSON_AddItemToObjectCS(output, "rsp", item1);
+            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
+            cJSON_AddItemToObjectCS(item1, "type", item2);
+            CJSON_TRY(item0 = cJSON_CreateNumber(data->rsp));
+            cJSON_AddItemToObjectCS(item1, "value", item0);
+            break;
+        default:
+            pld_log_error("bad export style");
+            return PLD_ERR_NOT_IMPLEMENTED;
+    }
+    return PLD_OK;
+cjfail:
+    return PLD_ERR_ALLOC; /* will be deallocated by caller */
+}
+
+pld_error_t LTC_CHANGE_CHNL_CFG_RSP_to_json(const struct LTC_CHANGE_CHNL_CFG_RSP *data, enum pld_export_json_style style, cJSON** output) {
+    pld_log_trace("LTC_CHANGE_CHNL_CFG_RSP_to_json");
+    return pld_to_json_by_spec(PldSpec_LTC_CHANGE_CHNL_CFG_RSP, data, style, output);
+}
 #endif
 
-static const struct pld_spec payload_specs[8] = {
+static const struct pld_spec payload_specs[10] = {
     {
         .pld_id = LTC_SET_MODE_REQ_ID,
         .address = {
@@ -1829,7 +2258,7 @@ static const struct pld_spec payload_specs[8] = {
             .dst = 13,
             .dport = 10
         },
-        .bin_size = 3,
+        .bin_size = 4,
         .c_size = sizeof(struct LTC_READ_TEMP_REQ),
         .growable = false,
         .tail_elem_bin_size = 0,
@@ -1925,8 +2354,62 @@ static const struct pld_spec payload_specs[8] = {
         .build_static = (fn_build_static_t) LTC_SET_RSENSE_RSP_build_s,
         .name = "LTC_SET_RSENSE_RSP",
     #if PLD_HAVE_EXPORT
-        .descr = "jeden command na set, jeden na read, flagy -s -c -t <cislo> a spol a podle bit masky se bude zjistovat\nSet rsense value response",
+        .descr = "Set rsense value response",
         .data_to_json = (fn_data_to_json_t) LTC_SET_RSENSE_RSP_to_json_inner
+    #endif /* PLD_HAVE_EXPORT */
+    },
+    {
+        .pld_id = LTC_CHANGE_CHNL_CFG_REQ_ID,
+        .address = {
+            .src = 255,
+            .sport = 255,
+            .dst = 13,
+            .dport = 10
+        },
+        .bin_size = 7,
+        .c_size = sizeof(struct LTC_CHANGE_CHNL_CFG_REQ),
+        .growable = false,
+        .tail_elem_bin_size = 0,
+        .tail_elem_c_size = 0,
+        .recognize = true,
+        .tester = LTC_CHANGE_CHNL_CFG_REQ_test,
+    #if PLD_HAVE_ALLOC
+        .parse = (fn_parse_t) LTC_CHANGE_CHNL_CFG_REQ_parse,
+        .build = (fn_build_t) LTC_CHANGE_CHNL_CFG_REQ_build,
+    #endif /* PLD_HAVE_ALLOC */
+        .parse_static = (fn_parse_static_t) LTC_CHANGE_CHNL_CFG_REQ_parse_s,
+        .build_static = (fn_build_static_t) LTC_CHANGE_CHNL_CFG_REQ_build_s,
+        .name = "LTC_CHANGE_CHNL_CFG_REQ",
+    #if PLD_HAVE_EXPORT
+        .descr = "Change channel config request",
+        .data_to_json = (fn_data_to_json_t) LTC_CHANGE_CHNL_CFG_REQ_to_json_inner
+    #endif /* PLD_HAVE_EXPORT */
+    },
+    {
+        .pld_id = LTC_CHANGE_CHNL_CFG_RSP_ID,
+        .address = {
+            .src = 13,
+            .sport = 10,
+            .dst = 255,
+            .dport = 255
+        },
+        .bin_size = 2,
+        .c_size = sizeof(struct LTC_CHANGE_CHNL_CFG_RSP),
+        .growable = false,
+        .tail_elem_bin_size = 0,
+        .tail_elem_c_size = 0,
+        .recognize = true,
+        .tester = LTC_CHANGE_CHNL_CFG_RSP_test,
+    #if PLD_HAVE_ALLOC
+        .parse = (fn_parse_t) LTC_CHANGE_CHNL_CFG_RSP_parse,
+        .build = (fn_build_t) LTC_CHANGE_CHNL_CFG_RSP_build,
+    #endif /* PLD_HAVE_ALLOC */
+        .parse_static = (fn_parse_static_t) LTC_CHANGE_CHNL_CFG_RSP_parse_s,
+        .build_static = (fn_build_static_t) LTC_CHANGE_CHNL_CFG_RSP_build_s,
+        .name = "LTC_CHANGE_CHNL_CFG_RSP",
+    #if PLD_HAVE_EXPORT
+        .descr = NULL,
+        .data_to_json = (fn_data_to_json_t) LTC_CHANGE_CHNL_CFG_RSP_to_json_inner
     #endif /* PLD_HAVE_EXPORT */
     }
 };
@@ -1936,7 +2419,7 @@ const struct pld_module Payloads_LTC = {
     .name = "LTC",
     .specs = payload_specs,
     .start_index = 1,
-    .count = 8,
+    .count = 10,
 };
 
 const struct pld_spec * const PldSpec_LTC_SET_MODE_REQ = &payload_specs[0];
@@ -1947,3 +2430,5 @@ const struct pld_spec * const PldSpec_LTC_READ_TEMP_REQ = &payload_specs[4];
 const struct pld_spec * const PldSpec_LTC_READ_TEMP_RSP = &payload_specs[5];
 const struct pld_spec * const PldSpec_LTC_SET_RSENSE_REQ = &payload_specs[6];
 const struct pld_spec * const PldSpec_LTC_SET_RSENSE_RSP = &payload_specs[7];
+const struct pld_spec * const PldSpec_LTC_CHANGE_CHNL_CFG_REQ = &payload_specs[8];
+const struct pld_spec * const PldSpec_LTC_CHANGE_CHNL_CFG_RSP = &payload_specs[9];
