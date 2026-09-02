@@ -221,7 +221,7 @@ static HAL_StatusTypeDef _LTC2983_ReadTemperatureResults(LTC2983Handle_t * const
 	return status;
 }
 
-static void _LTC2983_ProcessTempRead(LTC2983Handle_t * const handle, LTC2983RuntimeState_t * const state, LTC2983ConvResult_t * const result){
+static void _LTC2983_ProcessTempRead(LTC2983Handle_t * const handle, LTC2983RuntimeState_t * const state, LTC2983ConvResult_t * const result, LTC2983ChannelAssignmentData_t const config){
 	uint8_t * const rxBuffer = state->RxBuffer;
 
 	uint8_t status = rxBuffer[3];
@@ -238,7 +238,11 @@ static void _LTC2983_ProcessTempRead(LTC2983Handle_t * const handle, LTC2983Runt
 			tempRaw |= 0xFF000000;
 		}
 
-		result->Temperature = (float)tempRaw / 1024.0f;
+		if (config & LTC2983_SENSOR_TYPE__DIRECT_ADC){
+			result->Temperature = (float)tempRaw / 2097152.0f; // temp/2^21
+		} else{
+			result->Temperature = (float)tempRaw / 1024.0f;
+		}
 	}
 
 	return;
@@ -1581,7 +1585,10 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 				state->Error = LTC2983_DRIVER_ERROR_INVALID_CONFIGS;
 			}
 
-			_LTC2983_ProcessTempRead(handle, state, result);
+			LTC2983ChannelAssignmentData_t const config = handle->ChannelConfigs->Configs[lastChannel-1].Data;
+
+			_LTC2983_ProcessTempRead(handle, state, result, config);
+
 
 			state->TaskState = TASK_STATE_IDLE;
 			state->Status = LTC2983_DRIVER_STATUS_COMPLETE;
@@ -1606,7 +1613,9 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 				break;
 			}
 
-			_LTC2983_ProcessTempRead(handle, state, result);
+			LTC2983ChannelAssignmentData_t const config = handle->ChannelConfigs->Configs[lastChannel-1].Data;
+
+			_LTC2983_ProcessTempRead(handle, state, result, config);
 
 
 			LTC2983MeasMultiChannelsMask_t multimask = handle->BitMask;
