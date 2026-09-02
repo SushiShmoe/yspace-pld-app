@@ -1,4 +1,0 @@
-../LTC2983/srv/src/server_ltc.c:26:6:server_process_packet	96	static
-../LTC2983/srv/src/server_ltc.c:100:15:server_set_mode	32	static
-../LTC2983/srv/src/server_ltc.c:122:15:server_get_status	24	static
-../LTC2983/srv/src/server_ltc.c:139:15:server_read_temp	64	static

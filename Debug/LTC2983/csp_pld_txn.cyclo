@@ -1,7 +1,0 @@
-../LTC2983/csp_pld_txn.c:4:22:csp_buffer_get_safe	1
-../LTC2983/csp_pld_txn.c:8:13:csp_buffer_free_safe	1
-../LTC2983/csp_pld_txn.c:13:6:csp_rpl_id	2
-../LTC2983/csp_pld_txn.c:36:5:csp_rpl	3
-../LTC2983/csp_pld_txn.c:52:5:csp_rpl_buffer	4
-../LTC2983/csp_pld_txn.c:74:6:csp_pld_txn	9
-../LTC2983/csp_pld_txn.c:135:8:csp_txn_retry	5

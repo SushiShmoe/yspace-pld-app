@@ -1,3 +1,0 @@
-../LTC2983/Driver/Src/stm32u5xx_hal_msp.c:66:6:HAL_MspInit	1
-../LTC2983/Driver/Src/stm32u5xx_hal_msp.c:88:6:HAL_SPI_MspInit	7
-../LTC2983/Driver/Src/stm32u5xx_hal_msp.c:195:6:HAL_SPI_MspDeInit	2

@@ -1,3 +1,0 @@
-../Libraries/libcsp/src/interfaces/csp_if_can.c:45:5:csp_can_rx	40	static
-../Libraries/libcsp/src/interfaces/csp_if_can.c:179:5:csp_can_tx	72	static
-../Libraries/libcsp/src/interfaces/csp_if_can.c:255:5:csp_can_add_interface	24	static

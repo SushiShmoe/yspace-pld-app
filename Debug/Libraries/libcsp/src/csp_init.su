@@ -1,5 +1,0 @@
-/media/maty/MyDisk/work/yspace/projects/csp/app_LTC2983/Libraries/libcsp/include/csp/csp_rtable.h:154:19:csp_route_set	16	static
-../Libraries/libcsp/src/csp_init.c:31:9:csp_get_address	4	static
-../Libraries/libcsp/src/csp_init.c:36:5:csp_init	24	static
-../Libraries/libcsp/src/csp_init.c:80:6:csp_free_resources	8	static
-../Libraries/libcsp/src/csp_init.c:91:20:csp_get_conf	4	static

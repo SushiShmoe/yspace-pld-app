@@ -1,4 +1,0 @@
-../Libraries/libcsp/src/rtable/csp_rtable_static.c:28:21:csp_rtable_find_route	16	static
-../Libraries/libcsp/src/rtable/csp_rtable_static.c:40:5:csp_rtable_set_internal	40	static
-../Libraries/libcsp/src/rtable/csp_rtable_static.c:56:6:csp_rtable_free	8	static
-../Libraries/libcsp/src/rtable/csp_rtable_static.c:61:6:csp_rtable_iterate	32	static

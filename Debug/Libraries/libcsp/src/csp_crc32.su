@@ -1,4 +1,0 @@
-../Libraries/libcsp/src/csp_crc32.c:64:10:csp_crc32_memory	24	static
-../Libraries/libcsp/src/csp_crc32.c:78:10:csp_crc32_step	16	static
-../Libraries/libcsp/src/csp_crc32.c:86:5:csp_crc32_append	32	static
-../Libraries/libcsp/src/csp_crc32.c:111:5:csp_crc32_verify	24	static
