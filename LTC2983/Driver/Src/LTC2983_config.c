@@ -6,6 +6,7 @@
  */
 
 #include "LTC2983.h"
+#include "ltc/ltc_defines.h"
 
 extern SPI_HandleTypeDef hspi2;
 
@@ -17,7 +18,7 @@ LTC2983IfaceConfig_t ltc1IFaceConfig = {
 };
 
 const float rsenseResistorValue = 5050.0; // ohms
-LTC2983ChannelConfig_t ltc1ChannelArray[5] = {
+LTC2983ChannelConfig_t ltc1ChannelArray[VALID_CHANNEL_LIST_COUNT] = { // 5 = VALID_CHANNEL_LIST_COUNT
 		{ // Rsense resistor
 			.Channel = 	2,
 			.Data = LTC2983_SENSOR_TYPE__SENSE_RESISTOR | (uint32_t)(rsenseResistorValue * 1024) // resolution per bit
