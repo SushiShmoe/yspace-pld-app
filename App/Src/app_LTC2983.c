@@ -62,7 +62,7 @@ typedef struct {
     LTC2983_AppErrorState_t appErrorState;
     bool configDone;
     LTC2983ConvResult_t results[TEMP_RSLT_COUNT];
-    LTC2983ChannelConfig_t originalConfigs[VALID_CHANNEL_LIST_COUNT];
+    LTC2983ChannelConfig_t originalConfigs[TEMP_RSLT_COUNT];
 } LTC2983_App_t;
 
 LTC2983_App_t appHandle = {
@@ -417,7 +417,7 @@ int LTC2983_ChangeChnlCfg(uint8_t chnl, uint8_t rst, uint32_t data){
 	osThreadFlagsSet(LTCTaskHandle, MEASUREMENT_START_FLAG);
 
 	LTC2983ChannelConfig_t *orig_cfg = NULL;
-	for (int i = 0; i < VALID_CHANNEL_LIST_COUNT; i++){
+	for (int i = 0; i < TEMP_RSLT_COUNT; i++){
 		if (appHandle.originalConfigs[i].Channel == chnl){
 			orig_cfg = &appHandle.originalConfigs[i];
 			break;
@@ -427,7 +427,7 @@ int LTC2983_ChangeChnlCfg(uint8_t chnl, uint8_t rst, uint32_t data){
 	if (orig_cfg){
 		LTC2983ChannelConfig_t *cfg = NULL;
 
-		for (int i = 0; i < VALID_CHANNEL_LIST_COUNT; i++){
+		for (int i = 0; i < TEMP_RSLT_COUNT; i++){
 			if (ltc1Handle.ChannelConfigs->Configs[i].Channel == chnl){
 				cfg = &ltc1Handle.ChannelConfigs->Configs[i];
 				break;
