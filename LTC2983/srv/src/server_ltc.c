@@ -200,6 +200,7 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 	  return(SERVICE_ERR_NONE);
   }
 
+  rpl->result_ready = RESULT_READY;
   for (int i = 0; i < TEMP_RSLT_COUNT; i++){
 	rpl->TempRslt[i].channel = tempResults[i].Channel;
 	rpl->TempRslt[i].temperature = tempResults[i].Temperature;
