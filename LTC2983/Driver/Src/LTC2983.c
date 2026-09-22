@@ -238,7 +238,7 @@ static void _LTC2983_ProcessTempRead(LTC2983Handle_t * const handle, LTC2983Runt
 			tempRaw |= 0xFF000000;
 		}
 
-		if (config & LTC2983_SENSOR_TYPE__DIRECT_ADC){
+		if ((config >> LTC2983_SENSOR_TYPE_LSB) == (LTC2983_SENSOR_TYPE__DIRECT_ADC >> LTC2983_SENSOR_TYPE_LSB)){
 			result->Temperature = (float)tempRaw / 2097152.0f; // temp/2^21
 		} else{
 			result->Temperature = (float)tempRaw / 1024.0f;
