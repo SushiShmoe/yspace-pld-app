@@ -1,4 +1,0 @@
-../LTC2983/srv/src/server_ltc.c:26:6:server_process_packet	7
-../LTC2983/srv/src/server_ltc.c:100:15:server_set_mode	2
-../LTC2983/srv/src/server_ltc.c:122:15:server_get_status	1
-../LTC2983/srv/src/server_ltc.c:139:15:server_read_temp	4

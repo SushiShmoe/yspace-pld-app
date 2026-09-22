@@ -1,2 +1,0 @@
-../Libraries/libcsp/src/arch/freertos/csp_clock.c:25:28:csp_clock_get_time	2
-../Libraries/libcsp/src/arch/freertos/csp_clock.c:48:27:csp_clock_set_time	3

@@ -1,3 +1,0 @@
-../Core/Src/rtc_srv.c:13:19:RTC_Init	8	static
-../Core/Src/rtc_srv.c:34:19:RTC_SetTimeAndDate	56	static
-../Core/Src/rtc_srv.c:57:19:RTC_GetTimeAndDate	48	static

@@ -24,6 +24,7 @@ static int8_t server_set_mode(void* vreq, void* vrpl);
 static int8_t server_get_status(void* vreq, void* vrpl);
 static int8_t server_read_temp(void* vreq, void* vrpl);
 static int8_t server_set_rsense(void* vreq, void* vrpl);
+static int8_t server_change_config(void* vreq, void* vrpl);
 
 void ltc_service_handler(csp_conn_t* conn, csp_packet_t *packet) {
   (void)conn;
@@ -98,6 +99,17 @@ void ltc_service_handler(csp_conn_t* conn, csp_packet_t *packet) {
       txn.rsp_build_s = (fn_build_static_t)LTC_SET_RSENSE_RSP_build_s;
       // ... and a callback to a function that will actually do something
       txn.fce = server_set_rsense;
+    } break;
+
+    case LTC_CHANGE_CHNL_CFG_RSP_CMD_ID: {
+      // each transaction needs at least the size of the reply, ...
+      txn.bin_size_rsp = LTC_CHANGE_CHNL_CFG_RSP_BIN_SIZE;
+      // ... function to be used to parse the request, ...
+      txn.req_parse_s = (fn_parse_static_t)LTC_CHANGE_CHNL_CFG_REQ_parse_s;
+      // ... function to be used to build a reply, ...
+      txn.rsp_build_s = (fn_build_static_t)LTC_CHANGE_CHNL_CFG_RSP_build_s;
+      // ... and a callback to a function that will actually do something
+      txn.fce = server_change_config;
     } break;
 
     default: {
@@ -188,6 +200,7 @@ static int8_t server_read_temp(void* vreq, void* vrpl) {
 	  return(SERVICE_ERR_NONE);
   }
 
+  rpl->result_ready = RESULT_READY;
   for (int i = 0; i < TEMP_RSLT_COUNT; i++){
 	rpl->TempRslt[i].channel = tempResults[i].Channel;
 	rpl->TempRslt[i].temperature = tempResults[i].Temperature;
@@ -205,6 +218,17 @@ static int8_t server_set_rsense(void* vreq, void* vrpl) {
   rpl->pld_id = LTC_SET_RSENSE_RSP_ID;
 
   LTC2983_ChangeRsenseValue(req->val);
+
+  // these functions have to return a status code
+  return(SERVICE_ERR_NONE);
+}
+
+static int8_t server_change_config(void* vreq, void* vrpl) {
+  struct LTC_CHANGE_CHNL_CFG_REQ* req = (struct LTC_CHANGE_CHNL_CFG_REQ*)vreq;
+  struct LTC_CHANGE_CHNL_CFG_RSP* rpl = (struct LTC_CHANGE_CHNL_CFG_RSP*)vrpl;
+  rpl->pld_id = LTC_CHANGE_CHNL_CFG_RSP_ID;
+
+  rpl->rsp = LTC2983_ChangeChnlCfg(req->channel, req->reset, req->cfg);
 
   // these functions have to return a status code
   return(SERVICE_ERR_NONE);

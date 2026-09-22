@@ -76,7 +76,7 @@ struct READ_TEMP_RSP {
   u8 =0x02
 
   u8 result_ready
-  struct TempRslt[4]{
+  struct TempRslt[20]{
     +descr "Channel ID"
     u8 channel
 
@@ -86,6 +86,51 @@ struct READ_TEMP_RSP {
     +endian big
     +descr "Temperature"
     float temperature
+
+    +endian big
+    +descr "Raw Voltage"
+    float raw
   }
 }
 
+/// Set rsense value
++to NODE_PLD:LTC2983_PORT
+struct SET_RSENSE_REQ {
+  +named CMD_ID
+  u8 =0x03
+
+  +descr "Rsense value to set"
+  float val
+}
+
+/// Set rsense value response
++from NODE_PLD:LTC2983_PORT
+struct SET_RSENSE_RSP {
+  +named CMD_ID
+  u8 =0x03
+}
+
+/// Change channel config request
++to NODE_PLD:LTC2983_PORT
+struct CHANGE_CHNL_CFG_REQ{
+  +named CMD_ID
+  u8 =0x04
+
+  +descr "A flag to reset channel to its original config"
+  u8 reset
+
+  +descr "Target channel to change config on"
+  u8 channel
+
+  +descr "Desired config values"
+  u32 cfg
+}
+
++from NODE_PLD:LTC2983_PORT
+struct CHANGE_CHNL_CFG_RSP{
+  +named CMD_ID
+  u8 =0x04
+
+  // 1=OK, 0=NOK
+  u8 rsp
+}

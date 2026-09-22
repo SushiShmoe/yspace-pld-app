@@ -1,3 +1,0 @@
-../Libraries/libcsp/src/interfaces/csp_if_can_pbuf.c:35:5:csp_can_pbuf_free	3
-../Libraries/libcsp/src/interfaces/csp_if_can_pbuf.c:57:25:csp_can_pbuf_new	6
-../Libraries/libcsp/src/interfaces/csp_if_can_pbuf.c:83:25:csp_can_pbuf_find	5

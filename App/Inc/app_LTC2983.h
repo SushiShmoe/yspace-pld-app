@@ -58,6 +58,10 @@ uint8_t LTC2983_AppIsResultReady(void);
 /* A public function to get the newest results */
 uint8_t LTC2983_AppGetResults(LTC2983ConvResult_t *results);
 
+/* A function to change the value of RSENSE. */
 void LTC2983_ChangeRsenseValue(float rsenseVal);
+
+/* A function to change a config of a channel. */
+int LTC2983_ChangeChnlCfg(uint8_t chnl, uint8_t rst, uint32_t data);
 
 #endif /* INC_LTC2983_CONFIG_H_ */

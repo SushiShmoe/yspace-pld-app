@@ -6,6 +6,7 @@
  */
 
 #include "LTC2983.h"
+#include "ltc/ltc_defines.h"
 
 extern SPI_HandleTypeDef hspi2;
 
@@ -17,10 +18,16 @@ LTC2983IfaceConfig_t ltc1IFaceConfig = {
 };
 
 const float rsenseResistorValue = 5050.0; // ohms
-LTC2983ChannelConfig_t ltc1ChannelArray[5] = {
+LTC2983ChannelConfig_t ltc1ChannelArray[20] = { // 5 = VALID_CHANNEL_LIST_COUNT
+		{
+			.Channel = 	1, .Data = 0 // resolution per bit
+		},
 		{ // Rsense resistor
 			.Channel = 	2,
 			.Data = LTC2983_SENSOR_TYPE__SENSE_RESISTOR | (uint32_t)(rsenseResistorValue * 1024) // resolution per bit
+		},
+		{
+			.Channel = 	3, .Data = 0 // resolution per bit
 		},
 		{ // rtd1, sensor type and excitation current is an unknown
 			.Channel = 4,
@@ -28,20 +35,59 @@ LTC2983ChannelConfig_t ltc1ChannelArray[5] = {
 			| LTC2983_RTD_EXCITATION_CURRENT__100UA | LTC2983_RTD_STANDARD__EUROPEAN
 		},
 		{
-				.Channel = 6,
-				.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
-				| LTC2983_RTD_EXCITATION_CURRENT__250UA | LTC2983_RTD_STANDARD__EUROPEAN
+			.Channel = 	5, .Data = 0 // resolution per bit
 		},
 		{
-				.Channel = 8,
-				.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
-				| LTC2983_RTD_EXCITATION_CURRENT__100UA | LTC2983_RTD_STANDARD__EUROPEAN
+			.Channel = 6,
+			.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
+			| LTC2983_RTD_EXCITATION_CURRENT__250UA | LTC2983_RTD_STANDARD__EUROPEAN
 		},
 		{
-				.Channel = 10,
-				.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
-				| LTC2983_RTD_EXCITATION_CURRENT__100UA | LTC2983_RTD_STANDARD__EUROPEAN
-		}
+			.Channel = 	7, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 8,
+			.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
+			| LTC2983_RTD_EXCITATION_CURRENT__100UA | LTC2983_RTD_STANDARD__EUROPEAN
+		},
+		{
+			.Channel = 	9, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 10,
+			.Data = LTC2983_SENSOR_TYPE__RTD_PT_1000 | LTC2983_RTD_RSENSE_CHANNEL__2 | LTC2983_RTD_EXCITATION_MODE__NO_ROTATION_SHARING \
+			| LTC2983_RTD_EXCITATION_CURRENT__100UA | LTC2983_RTD_STANDARD__EUROPEAN
+		},
+		{
+			.Channel = 	11, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	12, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	13, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	14, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	15, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	16, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	17, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	18, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	19, .Data = 0 // resolution per bit
+		},
+		{
+			.Channel = 	20, .Data = 0 // resolution per bit
+		},
 };
 
 LTC2983ChannelConfigs_t ltc1ChannelConfigs = {

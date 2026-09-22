@@ -1,3 +1,0 @@
-../Libraries/libcsp/src/interfaces/csp_if_usart.c:34:5:csp_usart_tx	5
-../Libraries/libcsp/src/interfaces/csp_if_usart.c:83:6:csp_usart_rx	20
-../Libraries/libcsp/src/interfaces/csp_if_usart.c:216:5:csp_usart_add_interface	8

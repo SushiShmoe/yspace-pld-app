@@ -1,9 +1,0 @@
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:71:14:realloc_clear	3
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:87:15:dstr_new	5
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:112:13:dstr_free	3
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:124:13:dstr_pushn	7
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:158:13:dstr_push	4
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:171:14:dstr_into_raw	1
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:254:7:pld_pretty_print	45
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:337:20:value_color	3
-../LTC2983/common/lpldgen/src/payloads_pretty_print.c:350:13:print_data	135
