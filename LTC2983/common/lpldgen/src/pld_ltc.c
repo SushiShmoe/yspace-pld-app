@@ -241,9 +241,7 @@ pld_error_t LTC_READ_TEMP_REQ_parse_s(const uint8_t * bytes, const size_t length
     
     output->channel_id = (uint8_t)(*bytes++);
     
-    output->force_measurement = (uint8_t)(*bytes++);
-    
-    output->do_adc = (uint8_t)(*bytes);
+    output->force_measurement = (uint8_t)(*bytes);
     
     return PLD_OK;
 }
@@ -909,8 +907,6 @@ pld_error_t LTC_READ_TEMP_REQ_build_s(const struct LTC_READ_TEMP_REQ * const dat
     *output++ = (uint8_t)(data->channel_id);
     
     *output++ = (uint8_t)(data->force_measurement);
-    
-    *output++ = (uint8_t)(data->do_adc);
     
     return PLD_OK;
 }
@@ -1726,8 +1722,6 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             cJSON_AddItemToObjectCS(output, "channel_id", item0);
             CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
             cJSON_AddItemToObjectCS(output, "force_measurement", item0);
-            CJSON_TRY(item0 = cJSON_CreateNumber(data->do_adc));
-            cJSON_AddItemToObjectCS(output, "do_adc", item0);
             break;
         case EXPORT_JSON_ANNOTATED:
             pld_log_trace("export annotated");
@@ -1746,14 +1740,6 @@ static pld_error_t LTC_READ_TEMP_REQ_to_json_inner(const struct LTC_READ_TEMP_RE
             CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
             cJSON_AddItemToObjectCS(item1, "type", item2);
             CJSON_TRY(item0 = cJSON_CreateNumber(data->force_measurement));
-            cJSON_AddItemToObjectCS(item1, "value", item0);
-            CJSON_TRY(item1 = cJSON_CreateObject());
-            cJSON_AddItemToObjectCS(output, "do_adc", item1);
-            CJSON_TRY(item2 = cJSON_CreateStringReference("Does adc reading on channel instead of the one that was configured."));
-            cJSON_AddItemToObjectCS(item1, "descr", item2);
-            CJSON_TRY(item2 = cJSON_CreateStringReference("u8"));
-            cJSON_AddItemToObjectCS(item1, "type", item2);
-            CJSON_TRY(item0 = cJSON_CreateNumber(data->do_adc));
             cJSON_AddItemToObjectCS(item1, "value", item0);
             break;
         default:
@@ -2258,7 +2244,7 @@ static const struct pld_spec payload_specs[10] = {
             .dst = 13,
             .dport = 10
         },
-        .bin_size = 4,
+        .bin_size = 3,
         .c_size = sizeof(struct LTC_READ_TEMP_REQ),
         .growable = false,
         .tail_elem_bin_size = 0,

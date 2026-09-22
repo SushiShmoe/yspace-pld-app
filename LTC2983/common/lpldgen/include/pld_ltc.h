@@ -187,8 +187,6 @@ struct LTC_READ_TEMP_REQ {
     uint8_t channel_id;
     /** Forces a new measurement if results are not ready */
     uint8_t force_measurement;
-    /** Does adc reading on channel instead of the one that was configured. */
-    uint8_t do_adc;
 };
 
 /* Associated constant values */
@@ -199,7 +197,7 @@ struct LTC_READ_TEMP_REQ {
 #define LTC_READ_TEMP_REQ_C_SIZE (sizeof(struct LTC_READ_TEMP_REQ))
 
 /** Byte size of LTC_READ_TEMP_REQ in binary form */
-#define LTC_READ_TEMP_REQ_BIN_SIZE 4
+#define LTC_READ_TEMP_REQ_BIN_SIZE 3
 
 /** Payload LTC_READ_TEMP_REQ CSP destination address */
 #define LTC_READ_TEMP_REQ_DST_ADDR 13
